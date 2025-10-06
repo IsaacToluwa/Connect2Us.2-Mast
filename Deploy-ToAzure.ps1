@@ -91,7 +91,7 @@ foreach ($file in $filesToCopy) {
                 Write-Host "✅ Copied: $($file.Source) -> $($file.Destination)" -ForegroundColor Green
             } else {
                 Write-Host "⚠️  Source not found: $($file.Source)" -ForegroundColor Yellow
-                if ($file.Source -eq ".\bin") {
+                if ($file.Source -like '*bin*') {
                     Write-Host "📂 Current directory contents:" -ForegroundColor Cyan
                     Get-ChildItem | ForEach-Object { Write-Host "  - $($_.Name)" -ForegroundColor Gray }
                 }
