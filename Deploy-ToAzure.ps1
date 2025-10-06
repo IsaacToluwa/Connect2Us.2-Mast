@@ -72,43 +72,38 @@ Write-Host "📁 Creating deployment package..." -ForegroundColor Yellow
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 
 # Copy essential files for deployment
-$filesToCopy = @(
-    @{Source = "bin"; Destination = "$OutputDir\bin"; Recurse = $true; Type = "directory"},
-    @{Source = "Content"; Destination = "$OutputDir\Content"; Recurse = $true; Type = "directory"},
-    @{Source = "Scripts"; Destination = "$OutputDir\Scripts"; Recurse = $true; Type = "directory"},
-    @{Source = "Views"; Destination = "$OutputDir\Views"; Recurse = $true; Type = "directory"},
-    @{Source = "*.config"; Destination = "$OutputDir"; Recurse = $false; Type = "wildcard"},
-    @{Source = "*.asax"; Destination = "$OutputDir"; Recurse = $false; Type = "wildcard"},
-    @{Source = "*.ico"; Destination = "$OutputDir"; Recurse = $false; Type = "wildcard"}
-)
+Write-Host "📁 Copying deployment files..." -ForegroundColor Yellow
 
-Write-Host "📁 Checking for files to copy..." -ForegroundColor Yellow
-foreach ($file in $filesToCopy) {
+# Copy directories
+$directories = @("bin", "Content", "Scripts", "Views")
+foreach ($dir in $directories) {
+    if (Test-Path $dir) {
+        Copy-Item -Path $dir -Destination "$OutputDir\$dir" -Recurse -Force
+        Write-Host "✅ Copied directory: $dir" -ForegroundColor Green
+    } else {
+        Write-Host "⚠️  Directory not found: $dir" -ForegroundColor Yellow
+        if ($dir -eq "bin") {
+            Write-Host "📂 Current directory contents:" -ForegroundColor Cyan
+            Get-ChildItem | ForEach-Object { Write-Host "  - $($_.Name)" -ForegroundColor Gray }
+        }
+    }
+}
+
+# Copy individual files using wildcards
+$filePatterns = @("*.config", "*.asax", "*.ico")
+foreach ($pattern in $filePatterns) {
     try {
-        if ($file.Type -eq "directory") {
-            if (Test-Path $file.Source) {
-                Copy-Item -Path $file.Source -Destination $file.Destination -Recurse -Force
-                Write-Host "✅ Copied: $($file.Source) -> $($file.Destination)" -ForegroundColor Green
-            } else {
-                Write-Host "⚠️  Source not found: $($file.Source)" -ForegroundColor Yellow
-                if ($file.Source -like '*bin*') {
-                    Write-Host "📂 Current directory contents:" -ForegroundColor Cyan
-                    Get-ChildItem | ForEach-Object { Write-Host "  - $($_.Name)" -ForegroundColor Gray }
-                }
+        $files = Get-ChildItem $pattern -ErrorAction SilentlyContinue
+        if ($files) {
+            foreach ($file in $files) {
+                Copy-Item -Path $file.FullName -Destination $OutputDir -Force
+                Write-Host "✅ Copied file: $($file.Name)" -ForegroundColor Green
             }
-        } elseif ($file.Type -eq "wildcard") {
-            $files = Get-ChildItem $file.Source -ErrorAction SilentlyContinue
-            if ($files) {
-                foreach ($item in $files) {
-                    Copy-Item -Path $item.FullName -Destination $file.Destination -Force
-                    Write-Host "✅ Copied: $($item.Name) -> $($file.Destination)" -ForegroundColor Green
-                }
-            } else {
-                Write-Host "⚠️  No files found matching pattern: $($file.Source)" -ForegroundColor Yellow
-            }
+        } else {
+            Write-Host "⚠️  No files found matching pattern: $pattern" -ForegroundColor Yellow
         }
     } catch {
-        Write-Host "❌ Error copying $($file.Source): $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "❌ Error copying files matching $pattern`: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
 
