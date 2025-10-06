@@ -98,7 +98,7 @@ jobs:
         /p:DeployOnBuild=true `
         /p:PublishProfile="Connect2Us - Web Deploy Staging" `
         /p:AllowUntrustedCertificate=true `
-        /p:UserName="$connect2us-gzangpd0gaftcnhs-staging" `
+        /p:UserName="${{ secrets.AZURE_WEBAPP_USERNAME_STAGING }}" `
         /p:Password="${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}" `
         /p:VisualStudioVersion=17.0 `
         /p:EnableMSDeployBackup=true `
@@ -154,7 +154,7 @@ jobs:
         /p:DeployOnBuild=true `
         /p:PublishProfile="Connect2Us - Web Deploy" `
         /p:AllowUntrustedCertificate=true `
-        /p:UserName="$connect2us-gzangpd0gaftcnhs" `
+        /p:UserName="${{ secrets.AZURE_WEBAPP_USERNAME }}" `
         /p:Password="${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" `
         /p:VisualStudioVersion=17.0 `
         /p:EnableMSDeployBackup=true `
