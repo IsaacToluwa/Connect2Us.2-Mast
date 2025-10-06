@@ -12,11 +12,29 @@ Write-Host "==========================================" -ForegroundColor Cyan
 
 # Check if MSBuild is available
 try {
-    $msbuildPath = "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
-    if (-not (Test-Path $msbuildPath)) {
-        Write-Host "❌ MSBuild not found at expected location" -ForegroundColor Red
+    # Search for MSBuild in common locations
+    $msbuildPaths = @(
+        "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe",
+        "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe",
+        "C:\Program Files\Microsoft Visual Studio\2022\Professional\MSBuild\Current\Bin\MSBuild.exe",
+        "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe"
+    )
+    
+    $msbuildPath = $null
+    foreach ($path in $msbuildPaths) {
+        if (Test-Path $path) {
+            $msbuildPath = $path
+            break
+        }
+    }
+    
+    if (-not $msbuildPath) {
+        Write-Host "❌ MSBuild not found in any expected location" -ForegroundColor Red
+        Write-Host "Searched locations:" -ForegroundColor Yellow
+        $msbuildPaths | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
         exit 1
     }
+    
     Write-Host "✅ MSBuild found: $msbuildPath" -ForegroundColor Green
 } catch {
     Write-Host "❌ Error locating MSBuild: $($_.Exception.Message)" -ForegroundColor Red
