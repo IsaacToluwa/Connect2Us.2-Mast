@@ -101,10 +101,10 @@ namespace Connect2Us.Controllers
                 
                 return View(paginatedProducts);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 System.IO.File.AppendAllText(System.Web.Hosting.HostingEnvironment.MapPath("~/App_Data/startup_log.txt"), 
-                    "Index action error: " + ex.Message + " at " + DateTime.Now + "\n");
+                    "Index action error occurred at " + DateTime.Now + "\n");
                 
                 ViewBag.Categories = GetHardcodedCategories();
                 

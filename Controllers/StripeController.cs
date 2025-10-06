@@ -88,7 +88,7 @@ namespace Connect2Us.Controllers
                 TempData["error"] = "Payment service error: " + ex.Message;
                 return RedirectToAction("Index", "Cart");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while creating the checkout session. Please try again.";
                 return RedirectToAction("Index", "Cart");
@@ -158,7 +158,7 @@ namespace Connect2Us.Controllers
                 TempData["error"] = "Payment verification error: " + ex.Message;
                 return RedirectToAction("Error", "Stripe");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while processing your payment. Please contact support if you were charged.";
                 return RedirectToAction("Error", "Stripe");
@@ -176,7 +176,7 @@ namespace Connect2Us.Controllers
                 }
                 return View();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // If there's an error even displaying the error page, log it and show a generic message
                 TempData["error"] = "An unexpected error occurred. Please try again later.";

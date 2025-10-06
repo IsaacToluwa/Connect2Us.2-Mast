@@ -26,7 +26,7 @@ namespace Connect2Us.Controllers
                 var cart = _context.Carts.Include("CartItems.Product").SingleOrDefault(c => c.UserId == userId);
                 return View(cart);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while loading your cart. Please try again.";
                 return View();
@@ -92,7 +92,7 @@ namespace Connect2Us.Controllers
 
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while adding the item to your cart. Please try again.";
                 return RedirectToAction("Index", "Home");
@@ -133,7 +133,7 @@ namespace Connect2Us.Controllers
 
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while removing the item from your cart. Please try again.";
                 return RedirectToAction("Index");
@@ -151,7 +151,7 @@ namespace Connect2Us.Controllers
                 var count = cart?.CartItems?.Sum(ci => ci.Quantity) ?? 0;
                 return Json(count, JsonRequestBehavior.AllowGet);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Return 0 if there's an error
                 return Json(0, JsonRequestBehavior.AllowGet);

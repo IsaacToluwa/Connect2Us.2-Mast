@@ -111,7 +111,7 @@ namespace Connect2Us.Controllers
                         return View(model);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred during login. Please try again.";
                 return View(model);

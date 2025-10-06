@@ -26,7 +26,7 @@ namespace Connect2Us.Controllers
                     .ToListAsync();
                 return View(reservations);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while loading your reservations. Please try again.";
                 return View();
@@ -65,7 +65,7 @@ namespace Connect2Us.Controllers
 
                 return View(viewModel);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while loading the reservation form. Please try again.";
                 return RedirectToAction("Index", "Home");
@@ -121,7 +121,7 @@ namespace Connect2Us.Controllers
                 TempData["success"] = product.Name + " reserved successfully for " + reservationDate.ToString("MMMM dd, yyyy") + "!";
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while creating your reservation. Please try again.";
                 return RedirectToAction("Create", new { productId = productId });
@@ -167,7 +167,7 @@ namespace Connect2Us.Controllers
                 TempData["success"] = "Reservation cancelled successfully.";
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while cancelling your reservation. Please try again.";
                 return RedirectToAction("Index");
@@ -186,7 +186,7 @@ namespace Connect2Us.Controllers
                     .CountAsync();
                 return Json(count, JsonRequestBehavior.AllowGet);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(0, JsonRequestBehavior.AllowGet);
             }

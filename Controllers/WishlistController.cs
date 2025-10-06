@@ -26,7 +26,7 @@ namespace Connect2Us.Controllers
                 var wishlist = _context.Wishlists.Include("WishlistItems.Product").SingleOrDefault(w => w.UserId == userId);
                 return View(wishlist);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while loading your wishlist. Please try again.";
                 return View();
@@ -80,7 +80,7 @@ namespace Connect2Us.Controllers
 
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while adding the item to your wishlist. Please try again.";
                 return RedirectToAction("Index", "Home");
@@ -121,7 +121,7 @@ namespace Connect2Us.Controllers
 
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["error"] = "An error occurred while removing the item from your wishlist. Please try again.";
                 return RedirectToAction("Index");
@@ -139,7 +139,7 @@ namespace Connect2Us.Controllers
                 var count = wishlist?.WishlistItems?.Count ?? 0;
                 return Json(count, JsonRequestBehavior.AllowGet);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Return 0 if there's an error
                 return Json(0, JsonRequestBehavior.AllowGet);

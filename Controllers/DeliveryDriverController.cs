@@ -275,7 +275,7 @@ namespace Connect2Us.Controllers
         }
 
         // GET: DeliveryDriver/Profile
-        public ActionResult Profile()
+        public new ActionResult Profile()
         {
             return RedirectToAction("DriverProfile");
         }
