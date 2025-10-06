@@ -31,14 +31,13 @@ jobs:
         run: |
           dotnet build --configuration Release
           mkdir published
-          xcopy /E /I /Y bin published\bin
-          xcopy /E /I /Y Content published\Content
-          xcopy /E /I /Y Scripts published\Scripts
-          xcopy /E /I /Y Views published\Views
-          copy /Y *.config published\
-          copy /Y *.asax published\
-          copy /Y *.ico published\
-          copy /Y *.dll published\ 2>nul || exit 0
+          Copy-Item -Path bin -Destination published\bin -Recurse -Force
+          Copy-Item -Path Content -Destination published\Content -Recurse -Force
+          Copy-Item -Path Scripts -Destination published\Scripts -Recurse -Force
+          Copy-Item -Path Views -Destination published\Views -Recurse -Force
+          Copy-Item -Path *.config -Destination published\ -Force
+          Copy-Item -Path *.asax -Destination published\ -Force
+          Copy-Item -Path *.ico -Destination published\ -Force
           
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
