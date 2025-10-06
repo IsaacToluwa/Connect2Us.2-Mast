@@ -97,9 +97,13 @@ foreach ($file in $filesToCopy) {
                 }
             }
         } else {
-            Get-ChildItem $file.Source | ForEach-Object {
-                Copy-Item -Path $_.FullName -Destination $file.Destination -Force
-                Write-Host "✅ Copied: $($_.Name) -> $($file.Destination)" -ForegroundColor Green
+            if (Test-Path $file.Source) {
+                Get-ChildItem $file.Source | ForEach-Object {
+                    Copy-Item -Path $_.FullName -Destination $file.Destination -Force
+                    Write-Host "✅ Copied: $($_.Name) -> $($file.Destination)" -ForegroundColor Green
+                }
+            } else {
+                Write-Host "⚠️  Source not found: $($file.Source)" -ForegroundColor Yellow
             }
         }
     } catch {
