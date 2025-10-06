@@ -16,9 +16,7 @@ param(
     
     [string]$OutputScriptPath = "MigrationScript.sql",
     
-    [switch]$Force = $false,
-    
-    [switch]$Verbose = $false
+    [switch]$Force = $false
 )
 
 # Set error action preference

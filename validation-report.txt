@@ -1,6 +1,6 @@
 PowerShell Script Validation Report
 ===================================
-Generated: 10/07/2025 00:19:43
+Generated: 10/07/2025 00:28:40
 
 File: Deploy-ToAzure.ps1
 Syntax Valid: True
