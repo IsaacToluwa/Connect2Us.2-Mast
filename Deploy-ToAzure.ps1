@@ -41,6 +41,9 @@ try {
     exit 1
 }
 
+Write-Host "[INFO] Restoring NuGet packages..." -ForegroundColor Yellow
+& .\nuget.exe restore .\Connect2Us.2.sln
+
 # Build the project
 Write-Host "[INFO] Building project..." -ForegroundColor Yellow
 $projectFile = "Connect2Us.2.csproj"
