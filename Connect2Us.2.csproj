@@ -179,6 +179,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\PreserveSeedDataInitializer.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\20240729120000_AddWishlistCartReservation.cs" />
     <Compile Include="Models\AccountViewModels.cs" />

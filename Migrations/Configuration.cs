@@ -8,7 +8,7 @@ namespace Connect2Us.Migrations
     using Microsoft.AspNet.Identity.EntityFramework;
     using Connect2Us.Models;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<Connect2Us.Models.ApplicationDbContext>
+    public sealed class Configuration : DbMigrationsConfiguration<Connect2Us.Models.ApplicationDbContext>
     {
         private class ProductSeedData
         {
@@ -31,37 +31,54 @@ namespace Connect2Us.Migrations
             string logPath = System.Web.Hosting.HostingEnvironment.IsHosted
                 ? System.Web.Hosting.HostingEnvironment.MapPath("~/App_Data/seed_log.txt")
                 : System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "seed_log.txt");
-            System.IO.File.AppendAllText(logPath, "Seeding roles...\n");
-            SeedRoles(context);
-            System.IO.File.AppendAllText(logPath, "Roles seeded.\n");
-
-            System.IO.File.AppendAllText(logPath, "Seeding admin...\n");
-            SeedAdmin(context);
-            System.IO.File.AppendAllText(logPath, "Admin seeded.\n");
-
-            System.IO.File.AppendAllText(logPath, "Seeding bookstores...\n");
-            SeedBookstores(context);
-            System.IO.File.AppendAllText(logPath, "Bookstores seeded.\n");
-
-            System.IO.File.AppendAllText(logPath, "Seeding delivery drivers...\n");
-            SeedDeliveryDrivers(context);
-            System.IO.File.AppendAllText(logPath, "Delivery drivers seeded.\n");
-
-            System.IO.File.AppendAllText(logPath, "Seeding customers...\n");
-            SeedCustomers(context);
-            System.IO.File.AppendAllText(logPath, "Customers seeded.\n");
-
-            System.IO.File.AppendAllText(logPath, "Seeding categories...\n");
-            SeedCategories(context);
-            System.IO.File.AppendAllText(logPath, "Categories seeded.\n");
-
-            System.IO.File.AppendAllText(logPath, "Seeding products...\n");
-            SeedProducts(context);
-            System.IO.File.AppendAllText(logPath, "Products seeded.\n");
             
-            System.IO.File.AppendAllText(logPath, "Updating bookstore roles...\n");
-            UpdateBookstoreRoles(context);
-            System.IO.File.AppendAllText(logPath, "Bookstore roles updated.\n");
+            System.IO.File.AppendAllText(logPath, $"=== Seed operation started at {DateTime.Now} ===\n");
+            
+            try
+            {
+                System.IO.File.AppendAllText(logPath, "Seeding roles...\n");
+                SeedRoles(context);
+                System.IO.File.AppendAllText(logPath, "Roles seeded.\n");
+
+                System.IO.File.AppendAllText(logPath, "Seeding admin...\n");
+                SeedAdmin(context);
+                System.IO.File.AppendAllText(logPath, "Admin seeded.\n");
+
+                System.IO.File.AppendAllText(logPath, "Seeding bookstores...\n");
+                SeedBookstores(context);
+                System.IO.File.AppendAllText(logPath, "Bookstores seeded.\n");
+
+                System.IO.File.AppendAllText(logPath, "Seeding delivery drivers...\n");
+                SeedDeliveryDrivers(context);
+                System.IO.File.AppendAllText(logPath, "Delivery drivers seeded.\n");
+
+                System.IO.File.AppendAllText(logPath, "Seeding customers...\n");
+                SeedCustomers(context);
+                System.IO.File.AppendAllText(logPath, "Customers seeded.\n");
+
+                System.IO.File.AppendAllText(logPath, "Seeding categories...\n");
+                SeedCategories(context);
+                System.IO.File.AppendAllText(logPath, "Categories seeded.\n");
+
+                System.IO.File.AppendAllText(logPath, "Seeding products...\n");
+                SeedProducts(context);
+                System.IO.File.AppendAllText(logPath, "Products seeded.\n");
+                
+                System.IO.File.AppendAllText(logPath, "Updating bookstore roles...\n");
+                UpdateBookstoreRoles(context);
+                System.IO.File.AppendAllText(logPath, "Bookstore roles updated.\n");
+                
+                System.IO.File.AppendAllText(logPath, "Protecting critical data...\n");
+                ProtectCriticalData(context);
+                System.IO.File.AppendAllText(logPath, "Critical data protected.\n");
+                
+                System.IO.File.AppendAllText(logPath, $"=== Seed operation completed successfully at {DateTime.Now} ===\n");
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText(logPath, $"ERROR during seeding: {ex.Message}\n{ex.StackTrace}\n");
+                throw;
+            }
         }
 
         private void SeedRoles(ApplicationDbContext context)
@@ -322,6 +339,49 @@ namespace Connect2Us.Migrations
                 if (!context.Categories.Any(c => c.Name == category.Name))
                 {
                     context.Categories.Add(category);
+                }
+            }
+            
+            context.SaveChanges();
+        }
+
+        private void ProtectCriticalData(ApplicationDbContext context)
+        {
+            // Ensure critical system roles always exist
+            var criticalRoles = new[] { "Admin", "Bookstore", "Customer", "DeliveryDriver" };
+            foreach (var roleName in criticalRoles)
+            {
+                if (!context.Roles.Any(r => r.Name == roleName))
+                {
+                    context.Roles.Add(new IdentityRole(roleName));
+                }
+            }
+            
+            // Ensure admin user always exists
+            if (!context.Users.Any(u => u.Email == "admin@example.com"))
+            {
+                var adminUser = new ApplicationUser
+                {
+                    UserName = "admin@example.com",
+                    Email = "admin@example.com",
+                    EmailConfirmed = true,
+                    FirstName = "System",
+                    LastName = "Administrator"
+                };
+                
+                var userStore = new UserStore<ApplicationUser>(context);
+                var userManager = new UserManager<ApplicationUser>(userStore);
+                userManager.Create(adminUser, "Admin@123");
+                userManager.AddToRole(adminUser.Id, "Admin");
+            }
+            
+            // Ensure critical categories always exist
+            var criticalCategories = new[] { "Fiction", "Non-Fiction", "Textbooks", "Stationery" };
+            foreach (var categoryName in criticalCategories)
+            {
+                if (!context.Categories.Any(c => c.Name == categoryName))
+                {
+                    context.Categories.Add(new Category { Name = categoryName });
                 }
             }
             

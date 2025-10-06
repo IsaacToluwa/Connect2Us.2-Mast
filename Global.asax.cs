@@ -8,6 +8,7 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using Connect2Us.Models;
 using Connect2Us.Migrations;
+using System.Data.Entity.Migrations;
 
 namespace Connect2Us._2
 {
@@ -20,6 +21,10 @@ namespace Connect2Us._2
             
             try
             {
+                // Configure database to use migrations and preserve seeded data
+                System.IO.File.AppendAllText(logPath, "Configuring database initialization...\n");
+                Database.SetInitializer(new Connect2Us.Infrastructure.PreserveSeedDataInitializer());
+                
                 System.IO.File.AppendAllText(logPath, "Registering Areas...\n");
                 AreaRegistration.RegisterAllAreas();
                 

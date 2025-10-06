@@ -719,3 +719,59 @@ Index action called at 2025/10/06 13:27:30
 Database exists: True at 2025/10/06 13:27:30
 Database connection error: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:27:31
 Database error loading products: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:27:31
+Index action called at 2025/10/06 13:28:06
+Database exists: True at 2025/10/06 13:28:06
+Index action called at 2025/10/06 13:28:06
+Database exists: True at 2025/10/06 13:28:06
+Database connection error: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:28:06
+Database connection error: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:28:06
+Database error loading products: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:28:07
+Database error loading products: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:28:07
+Application_Start entered at 2025/10/06 13:36:40
+Registering Areas...
+Registering Global Filters...
+Registering Routes...
+Registering Bundles...
+Application_Start completed successfully
+Index action called at 2025/10/06 13:36:41
+Database exists: True at 2025/10/06 13:36:41
+Database connection error: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:36:42
+Database error loading products: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:36:43
+Application_Start entered at 2025/10/06 13:45:55
+Configuring database initialization...
+Registering Areas...
+Registering Global Filters...
+Registering Routes...
+Registering Bundles...
+Application_Start completed successfully
+Index action called at 2025/10/06 13:46:02
+Database exists: True at 2025/10/06 13:46:02
+Loaded 8 categories from database at 2025/10/06 13:46:02
+Index action called at 2025/10/06 13:46:09
+Database exists: True at 2025/10/06 13:46:09
+Loaded 8 categories from database at 2025/10/06 13:46:09
+Index action called at 2025/10/06 13:46:34
+Database exists: True at 2025/10/06 13:46:34
+Loaded 8 categories from database at 2025/10/06 13:46:34
+Index action called at 2025/10/06 13:47:07
+Database exists: True at 2025/10/06 13:47:07
+Loaded 8 categories from database at 2025/10/06 13:47:07
+Index action called at 2025/10/06 13:47:52
+Database exists: True at 2025/10/06 13:47:52
+Loaded 8 categories from database at 2025/10/06 13:47:52
+Index action called at 2025/10/06 13:48:49
+Database exists: True at 2025/10/06 13:48:49
+Loaded 8 categories from database at 2025/10/06 13:48:49
+Application_Start entered at 2025/10/06 13:51:10
+Configuring database initialization...
+Registering Areas...
+Registering Global Filters...
+Registering Routes...
+Registering Bundles...
+Application_Start completed successfully
+Index action called at 2025/10/06 13:52:19
+Database exists: True at 2025/10/06 13:52:19
+Loaded 8 categories from database at 2025/10/06 13:52:19
+Index action called at 2025/10/06 13:52:56
+Database exists: True at 2025/10/06 13:52:56
+Loaded 8 categories from database at 2025/10/06 13:52:56

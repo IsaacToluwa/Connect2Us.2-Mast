@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web.Mvc;
@@ -400,6 +401,18 @@ namespace Connect2Us.Controllers
             var wallet = db.Wallets
                 .Include(w => w.Transactions)
                 .FirstOrDefault(w => w.UserId == userId);
+
+            if (wallet == null)
+            {
+                wallet = new Wallet
+                {
+                    UserId = userId,
+                    Balance = 0,
+                    Transactions = new List<Transaction>()
+                };
+                db.Wallets.Add(wallet);
+                db.SaveChanges();
+            }
 
             return View(wallet);
         }
