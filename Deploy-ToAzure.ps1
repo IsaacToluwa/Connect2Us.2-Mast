@@ -73,19 +73,19 @@ New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 
 # Copy essential files for deployment
 $filesToCopy = @(
-    @{Source = ".\bin"; Destination = "$OutputDir\bin"; Recurse = $true},
-    @{Source = ".\Content"; Destination = "$OutputDir\Content"; Recurse = $true},
-    @{Source = ".\Scripts"; Destination = "$OutputDir\Scripts"; Recurse = $true},
-    @{Source = ".\Views"; Destination = "$OutputDir\Views"; Recurse = $true},
-    @{Source = ".\*.config"; Destination = "$OutputDir"; Recurse = $false},
-    @{Source = ".\*.asax"; Destination = "$OutputDir"; Recurse = $false},
-    @{Source = ".\*.ico"; Destination = "$OutputDir"; Recurse = $false}
+    @{Source = "bin"; Destination = "$OutputDir\bin"; Recurse = $true; Type = "directory"},
+    @{Source = "Content"; Destination = "$OutputDir\Content"; Recurse = $true; Type = "directory"},
+    @{Source = "Scripts"; Destination = "$OutputDir\Scripts"; Recurse = $true; Type = "directory"},
+    @{Source = "Views"; Destination = "$OutputDir\Views"; Recurse = $true; Type = "directory"},
+    @{Source = "*.config"; Destination = "$OutputDir"; Recurse = $false; Type = "wildcard"},
+    @{Source = "*.asax"; Destination = "$OutputDir"; Recurse = $false; Type = "wildcard"},
+    @{Source = "*.ico"; Destination = "$OutputDir"; Recurse = $false; Type = "wildcard"}
 )
 
 Write-Host "📁 Checking for files to copy..." -ForegroundColor Yellow
 foreach ($file in $filesToCopy) {
     try {
-        if ($file.Recurse) {
+        if ($file.Type -eq "directory") {
             if (Test-Path $file.Source) {
                 Copy-Item -Path $file.Source -Destination $file.Destination -Recurse -Force
                 Write-Host "✅ Copied: $($file.Source) -> $($file.Destination)" -ForegroundColor Green
@@ -96,14 +96,15 @@ foreach ($file in $filesToCopy) {
                     Get-ChildItem | ForEach-Object { Write-Host "  - $($_.Name)" -ForegroundColor Gray }
                 }
             }
-        } else {
-            if (Test-Path $file.Source) {
-                Get-ChildItem $file.Source | ForEach-Object {
-                    Copy-Item -Path $_.FullName -Destination $file.Destination -Force
-                    Write-Host "✅ Copied: $($_.Name) -> $($file.Destination)" -ForegroundColor Green
+        } elseif ($file.Type -eq "wildcard") {
+            $files = Get-ChildItem $file.Source -ErrorAction SilentlyContinue
+            if ($files) {
+                foreach ($item in $files) {
+                    Copy-Item -Path $item.FullName -Destination $file.Destination -Force
+                    Write-Host "✅ Copied: $($item.Name) -> $($file.Destination)" -ForegroundColor Green
                 }
             } else {
-                Write-Host "⚠️  Source not found: $($file.Source)" -ForegroundColor Yellow
+                Write-Host "⚠️  No files found matching pattern: $($file.Source)" -ForegroundColor Yellow
             }
         }
     } catch {
