@@ -85,23 +85,9 @@ foreach ($dir in $directories) {
         }
         continue
     }
-
+    
     Copy-Item -Path $dir -Destination "$OutputDir\$dir" -Recurse -Force
     Write-Host "✅ Copied directory: $dir" -ForegroundColor Green
-}
-
-# Copy individual files using wildcards
-$filePatterns = @("*.config", "*.asax", "*.ico")
-foreach ($pattern in $filePatterns) {
-    $files = Get-ChildItem $pattern -ErrorAction SilentlyContinue
-    if ($files) {
-        foreach ($file in $files) {
-            Copy-Item -Path $file.FullName -Destination $OutputDir -Force
-            Write-Host "✅ Copied file: $($file.Name)" -ForegroundColor Green
-        }
-    } else {
-        Write-Host "⚠️  No files found matching pattern: $pattern" -ForegroundColor Yellow
-    }
 }
 
 # Copy individual files using wildcards
