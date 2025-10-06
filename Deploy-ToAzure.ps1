@@ -3,7 +3,7 @@
 
 param(
     [string]$Configuration = "Release",
-    [string]$Platform = "Any CPU",
+    [string]$Platform = "AnyCPU",
     [string]$OutputDir = ".\published"
 )
 
