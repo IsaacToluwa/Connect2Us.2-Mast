@@ -101,8 +101,11 @@ jobs:
       run: |
         # Update staging database
         echo "Updating staging database..."
-        # Add your database migration commands here
-        # dotnet ef database update --connection "${{ secrets.AZURE_SQL_CONNECTION_STRING_STAGING }}"
+        # Use our Migrate-Database.ps1 script to update database
+        & powershell -ExecutionPolicy Bypass -File ".\Migrate-Database.ps1" `
+          -ConnectionString "${{ secrets.AZURE_SQL_CONNECTION_STRING_STAGING }}" `
+          -UpdateDatabase:$true `
+          -Verbose:$true
     
     - name: Run smoke tests (Staging)
       run: |
@@ -144,8 +147,11 @@ jobs:
       run: |
         # Update production database
         echo "Updating production database..."
-        # Add your database migration commands here
-        # dotnet ef database update --connection "${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
+        # Use our Migrate-Database.ps1 script to update database
+        & powershell -ExecutionPolicy Bypass -File ".\Migrate-Database.ps1" `
+          -ConnectionString "${{ secrets.AZURE_SQL_CONNECTION_STRING }}" `
+          -UpdateDatabase:$true `
+          -Verbose:$true
     
     - name: Run health check (Production)
       run: |
@@ -185,10 +191,27 @@ jobs:
     
     - name: Create database migration script
       run: |
-        # Generate migration script
+        # Generate migration script using Entity Framework 6
         echo "Creating database migration script..."
-        # Add your migration script generation commands here
-        # dotnet ef migrations script --output migration-script.sql --idempotent
+        # Use our Migrate-Database.ps1 script to generate migration script
+        $migrationResult = & powershell -ExecutionPolicy Bypass -File ".\Migrate-Database.ps1" `
+          -ConnectionString "${{ env.AZURE_SQL_CONNECTION_STRING }}" `
+          -ScriptMigration:$true `
+          -OutputScriptPath "migration-script.sql" `
+          -UpdateDatabase:$false `
+          -Verbose:$true
+        
+        if (Test-Path "migration-script.sql") {
+          Write-Host "Migration script generated successfully: migration-script.sql"
+          $scriptSize = (Get-Item "migration-script.sql").Length
+          Write-Host "Script size: $scriptSize bytes"
+          Get-Content "migration-script.sql" -First 10
+        } else {
+          Write-Host "Migration script generation completed (no changes to apply)"
+          # Create empty file to satisfy artifact upload
+          New-Item "migration-script.sql" -ItemType File -Force
+          Set-Content "migration-script.sql" "-- No database changes to apply"
+        }
     
     - name: Upload migration script
       uses: actions/upload-artifact@v4

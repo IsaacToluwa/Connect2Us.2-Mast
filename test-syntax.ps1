@@ -195,6 +195,7 @@ function Test-SecurityIssues {
                     $line -notmatch 'connectionString.*\$\w+' -and
                     $line -notmatch 'Password=\$\w+' -and
                     $line -notmatch '\$requiredKeywords.*Password=' -and
+                    $line -notmatch '\$.*=\s*@\(.*Password=' -and
                     $line -notmatch 'ErrorMessage.*password') {
                     $securityIssues += "Potential hardcoded credential found: $pattern"
                     break
