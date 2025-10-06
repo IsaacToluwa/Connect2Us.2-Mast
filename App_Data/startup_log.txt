@@ -862,3 +862,25 @@ Loaded 8 categories from database at 2025/10/06 19:34:21
 Index action called at 2025/10/06 19:34:39
 Database exists: True at 2025/10/06 19:34:39
 Loaded 8 categories from database at 2025/10/06 19:34:39
+Application_Start entered at 2025/10/06 22:59:47
+Configuring database initialization...
+Registering Areas...
+Registering Global Filters...
+Registering Routes...
+Registering Bundles...
+Application_Start completed successfully
+Index action called at 2025/10/06 22:59:52
+Database exists: True at 2025/10/06 22:59:52
+Loaded 8 categories from database at 2025/10/06 22:59:52
+Index action called at 2025/10/06 23:01:00
+Database exists: True at 2025/10/06 23:01:00
+Loaded 8 categories from database at 2025/10/06 23:01:00
+Index action called at 2025/10/06 23:01:00
+Database exists: True at 2025/10/06 23:01:00
+Loaded 8 categories from database at 2025/10/06 23:01:00
+Index action called at 2025/10/06 23:01:12
+Database exists: True at 2025/10/06 23:01:12
+Loaded 8 categories from database at 2025/10/06 23:01:12
+Index action called at 2025/10/06 23:01:23
+Database exists: True at 2025/10/06 23:01:23
+Loaded 8 categories from database at 2025/10/06 23:01:23
