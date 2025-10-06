@@ -43,9 +43,21 @@ try {
 
 # Build the project
 Write-Host "🔨 Building project..." -ForegroundColor Yellow
-Write-Host "Running: MSBuild /nologo /verbosity:m /t:Build /p:Configuration=$Configuration /p:Platform=`"$Platform`"" -ForegroundColor Gray
+$projectFile = "Connect2Us.2.csproj"
 
-& $msbuildPath /nologo /verbosity:m /t:Build /p:Configuration=$Configuration /p:Platform="$Platform"
+# Check if project file exists
+if (-not (Test-Path $projectFile)) {
+    Write-Host "❌ Project file not found: $projectFile" -ForegroundColor Red
+    Write-Host "Current directory: $(Get-Location)" -ForegroundColor Yellow
+    Write-Host "Files in current directory:" -ForegroundColor Yellow
+    Get-ChildItem | ForEach-Object { Write-Host "  - $($_.Name)" -ForegroundColor Gray }
+    exit 1
+}
+
+Write-Host "✅ Project file found: $projectFile" -ForegroundColor Green
+Write-Host "Running: MSBuild $projectFile /nologo /verbosity:m /t:Build /p:Configuration=$Configuration /p:Platform=`"$Platform`"" -ForegroundColor Gray
+
+& $msbuildPath $projectFile /nologo /verbosity:m /t:Build /p:Configuration=$Configuration /p:Platform="$Platform"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Build failed with exit code $LASTEXITCODE" -ForegroundColor Red
@@ -70,6 +82,7 @@ $filesToCopy = @(
     @{Source = ".\*.ico"; Destination = "$OutputDir"; Recurse = $false}
 )
 
+Write-Host "📁 Checking for files to copy..." -ForegroundColor Yellow
 foreach ($file in $filesToCopy) {
     try {
         if ($file.Recurse) {
@@ -78,6 +91,10 @@ foreach ($file in $filesToCopy) {
                 Write-Host "✅ Copied: $($file.Source) -> $($file.Destination)" -ForegroundColor Green
             } else {
                 Write-Host "⚠️  Source not found: $($file.Source)" -ForegroundColor Yellow
+                if ($file.Source -eq ".\bin") {
+                    Write-Host "📂 Current directory contents:" -ForegroundColor Cyan
+                    Get-ChildItem | ForEach-Object { Write-Host "  - $($_.Name)" -ForegroundColor Gray }
+                }
             }
         } else {
             Get-ChildItem $file.Source | ForEach-Object {
