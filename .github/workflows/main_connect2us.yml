@@ -55,7 +55,7 @@ jobs:
       run: nuget restore Connect2Us.2.sln
     
     - name: Build solution
-      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU"
+      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="AnyCPU"
     
     - name: Run tests
       run: |
@@ -89,12 +89,12 @@ jobs:
       run: nuget restore Connect2Us.2.sln
     
     - name: Build solution
-      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU"
+      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="AnyCPU"
     
     - name: Deploy to Azure Web App (Staging) using MSDeploy
       run: msbuild Connect2Us.2.csproj `
         /p:Configuration=Release `
-        /p:Platform="Any CPU" `
+        /p:Platform="AnyCPU" `
         /p:DeployOnBuild=true `
         /p:PublishProfile="Connect2Us - Web Deploy Staging" `
         /p:AllowUntrustedCertificate=true `
@@ -145,12 +145,12 @@ jobs:
       run: nuget restore Connect2Us.2.sln
     
     - name: Build solution
-      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU"
+      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="AnyCPU"
     
     - name: Deploy to Azure Web App (Production) using MSDeploy
       run: msbuild Connect2Us.2.csproj `
         /p:Configuration=Release `
-        /p:Platform="Any CPU" `
+        /p:Platform="AnyCPU" `
         /p:DeployOnBuild=true `
         /p:PublishProfile="Connect2Us - Web Deploy" `
         /p:AllowUntrustedCertificate=true `
@@ -204,12 +204,12 @@ jobs:
       run: nuget restore Connect2Us.2.sln
     
     - name: Build solution
-      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU"
+      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="AnyCPU"
     
     - name: Create database migration script
       run: msbuild Connect2Us.2.csproj `
         /p:Configuration=Release `
-        /p:Platform="Any CPU" `
+        /p:Platform="AnyCPU" `
         /p:DeployOnBuild=true `
         /p:PublishProfile="Connect2Us - Web Deploy" `
         /p:AllowUntrustedCertificate=true `
