@@ -698,3 +698,24 @@ Database exists: True at 2025/10/06 13:12:07
 Database exists: True at 2025/10/06 13:12:07
 Loaded 8 categories from database at 2025/10/06 13:12:09
 Database connection error: The process cannot access the file 'C:\Users\olatu\source\repos\Connect2Us.2-master\App_Data\startup_log.txt' because it is being used by another process. at 2025/10/06 13:12:09
+Index action called at 2025/10/06 13:12:26
+Database exists: True at 2025/10/06 13:12:26
+Loaded 8 categories from database at 2025/10/06 13:12:26
+Application_Start entered at 2025/10/06 13:24:15
+Registering Areas...
+Registering Global Filters...
+Registering Routes...
+Registering Bundles...
+Application_Start completed successfully
+Index action called at 2025/10/06 13:24:16
+Index action called at 2025/10/06 13:24:16
+Database exists: True at 2025/10/06 13:24:16
+Database exists: True at 2025/10/06 13:24:16
+Database connection error: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:24:18
+Database connection error: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:24:18
+Database error loading products: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:24:18
+Database error loading products: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:24:18
+Index action called at 2025/10/06 13:27:30
+Database exists: True at 2025/10/06 13:27:30
+Database connection error: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:27:31
+Database error loading products: The model backing the 'ApplicationDbContext' context has changed since the database was created. Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269). at 2025/10/06 13:27:31

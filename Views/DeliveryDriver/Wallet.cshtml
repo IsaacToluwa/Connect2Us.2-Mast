@@ -1,4 +1,4 @@
-@model Connect2Us.ViewModels.WalletViewModel
+@model Connect2Us.ViewModels.WalletWithCardsViewModel
 
 @{
     ViewBag.Title = "My Wallet";
@@ -38,6 +38,15 @@
                 <div class="card-body">
                     <h5 class="card-title">Current Balance</h5>
                     <h3>@Model.Wallet.Balance.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Bank Cards</h5>
+                    <p class="card-text">@Model.BankCards.Count cards saved</p>
+                    <a href="@Url.Action("ManageCards")" class="btn btn-outline-primary">Manage Cards</a>
                 </div>
             </div>
         </div>
@@ -91,10 +100,10 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Transaction History</h5>
+                    <h5>Recent Transactions</h5>
                 </div>
                 <div class="card-body">
-                    @if (Model.Transactions.Any())
+                    @if (Model.Wallet.Transactions.Any())
                     {
                         <div class="table-responsive">
                             <table class="table table-striped">
@@ -109,12 +118,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var transaction in Model.Transactions)
+                                    @foreach (var transaction in Model.Wallet.Transactions.OrderByDescending(t => t.TransactionDate).Take(10))
                                     {
                                         <tr>
                                             <td>@transaction.TransactionDate.ToString("MMM dd, yyyy HH:mm")</td>
                                             <td>
-                                                <span class="badge badge-@(transaction.TransactionType == "Deposit" ? "success" : "warning")">
+                                                <span class="badge badge-@(transaction.TransactionType == "Deposit" ? "success" : transaction.TransactionType == "Withdrawal" ? "warning" : "primary")">
                                                     @transaction.TransactionType
                                                 </span>
                                             </td>

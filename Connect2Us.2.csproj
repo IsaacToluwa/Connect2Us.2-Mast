@@ -203,6 +203,7 @@
     <Compile Include="Models\CartItem.cs" />
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\BankCard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IEmailService.cs" />
     <Compile Include="Services\StripeEmailService.cs" />
@@ -212,6 +213,7 @@
     <Compile Include="ViewModels\OrderDetailsViewModel.cs" />
     <Compile Include="ViewModels\ProfileViewModel.cs" />
     <Compile Include="ViewModels\WalletViewModel.cs" />
+    <Compile Include="ViewModels\BankCardViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-grid.css" />
@@ -276,10 +278,15 @@
     <Content Include="Views\Customer\MyOrders.cshtml" />
     <Content Include="Views\Customer\OrderDetails.cshtml" />
     <Content Include="Views\Customer\Wallet.cshtml" />
+    <Content Include="Views\Customer\ManageCards.cshtml" />
+    <Content Include="Views\Customer\AddCard.cshtml" />
     <Content Include="Views\DeliveryDriver\Index.cshtml" />
     <Content Include="Views\DeliveryDriver\AvailableDeliveries.cshtml" />
     <Content Include="Views\DeliveryDriver\MyDeliveries.cshtml" />
     <Content Include="Views\DeliveryDriver\DeliveryDetails.cshtml" />
+    <Content Include="Views\DeliveryDriver\Wallet.cshtml" />
+    <Content Include="Views\DeliveryDriver\ManageCards.cshtml" />
+    <Content Include="Views\DeliveryDriver\AddCard.cshtml" />
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Admin\Users.cshtml" />
     <Content Include="Views\Admin\UserDetails.cshtml" />

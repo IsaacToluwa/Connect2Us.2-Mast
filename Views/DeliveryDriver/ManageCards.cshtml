@@ -1,0 +1,92 @@
+@model Connect2Us.ViewModels.WalletWithCardsViewModel
+
+@{
+    ViewBag.Title = "Manage Bank Cards";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5>My Bank Cards</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.BankCards.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Card Number</th>
+                                    <th>Cardholder Name</th>
+                                    <th>Type</th>
+                                    <th>Expiry Date</th>
+                                    <th>Status</th>
+                                    <th>Added Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var card in Model.BankCards)
+                                {
+                                    <tr>
+                                        <td>@card.MaskedCardNumber</td>
+                                        <td>@card.CardholderName</td>
+                                        <td>
+                                            <span class="badge badge-info">@card.CardType</span>
+                                        </td>
+                                        <td>@card.ExpiryDate.ToString("MM/yy")</td>
+                                        <td>
+                                            @if (card.IsActive)
+                                            {
+                                                <span class="badge badge-success">Active</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-secondary">Inactive</span>
+                                            }
+                                        </td>
+                                        <td>@card.AddedDate.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            @using (Html.BeginForm("ToggleCardStatus", "DeliveryDriver", FormMethod.Post))
+                                            {
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@card.Id" />
+                                                <button type="submit" class="btn btn-sm @(card.IsActive ? "btn-warning" : "btn-success")">
+                                                    @(card.IsActive ? "Deactivate" : "Activate")
+                                                </button>
+                                            }
+                                            @using (Html.BeginForm("RemoveCard", "DeliveryDriver", FormMethod.Post))
+                                            {
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@card.Id" />
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to remove this card?');">Remove</button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center">
+                        <p class="text-muted">No bank cards added yet.</p>
+                    </div>
+                }
+            </div>
+            <div class="card-footer">
+                <a href="@Url.Action("AddCard")" class="btn btn-primary">Add New Card</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <a href="@Url.Action("Wallet")" class="btn btn-outline-secondary">Back to Wallet</a>
+    </div>
+</div>

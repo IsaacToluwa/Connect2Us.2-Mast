@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -367,10 +369,13 @@ namespace Connect2Us.Controllers
                 db.SaveChanges();
             }
 
-            var viewModel = new WalletViewModel
+            var bankCards = db.BankCards.Where(b => b.UserId == userId).ToList();
+
+            var viewModel = new WalletWithCardsViewModel
             {
                 Wallet = wallet,
-                Transactions = wallet.Transactions.OrderByDescending(t => t.TransactionDate).ToList()
+                Transactions = wallet.Transactions.OrderByDescending(t => t.TransactionDate).ToList(),
+                BankCards = bankCards
             };
 
             return View(viewModel);
@@ -468,6 +473,91 @@ namespace Connect2Us.Controllers
 
             TempData["SuccessMessage"] = "Successfully withdrawn " + amount.ToString("C") + " from your wallet.";
             return RedirectToAction("Wallet");
+        }
+
+        // GET: DeliveryDriver/ManageCards
+        public ActionResult ManageCards()
+        {
+            var userId = User.Identity.GetUserId();
+            var wallet = db.Wallets.FirstOrDefault(w => w.UserId == userId);
+            var bankCards = db.BankCards.Where(b => b.UserId == userId).ToList();
+
+            var viewModel = new WalletWithCardsViewModel
+            {
+                Wallet = wallet,
+                BankCards = bankCards
+            };
+
+            return View(viewModel);
+        }
+
+        // GET: DeliveryDriver/AddCard
+        public ActionResult AddCard()
+        {
+            return View(new BankCardViewModel());
+        }
+
+        // POST: DeliveryDriver/AddCard
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> AddCard(BankCardViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var userId = User.Identity.GetUserId();
+                var bankCard = new BankCard
+                {
+                    UserId = userId,
+                    CardNumber = model.CardNumber,
+                    CardholderName = model.CardholderName,
+                    ExpiryDate = model.ExpiryDate,
+                    CVV = model.CVV,
+                    CardType = BankCardViewModel.DetectCardType(model.CardNumber),
+                    IsActive = true,
+                    AddedDate = DateTime.Now
+                };
+
+                db.BankCards.Add(bankCard);
+                await db.SaveChangesAsync();
+
+                return RedirectToAction("ManageCards");
+            }
+
+            return View(model);
+        }
+
+        // POST: DeliveryDriver/RemoveCard
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> RemoveCard(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var bankCard = db.BankCards.FirstOrDefault(b => b.Id == id && b.UserId == userId);
+
+            if (bankCard != null)
+            {
+                db.BankCards.Remove(bankCard);
+                await db.SaveChangesAsync();
+            }
+
+            return RedirectToAction("ManageCards");
+        }
+
+        // POST: DeliveryDriver/ToggleCardStatus
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ToggleCardStatus(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var bankCard = db.BankCards.FirstOrDefault(b => b.Id == id && b.UserId == userId);
+
+            if (bankCard != null)
+            {
+                bankCard.IsActive = !bankCard.IsActive;
+                await db.SaveChangesAsync();
+            }
+
+            return RedirectToAction("ManageCards");
         }
 
         protected override void Dispose(bool disposing)

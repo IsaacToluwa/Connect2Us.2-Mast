@@ -7,6 +7,7 @@ using Microsoft.AspNet.Identity.Owin;
 using System.Data.Entity;
 using System.Threading.Tasks;
 using Connect2Us.Models;
+using Connect2Us.ViewModels;
 
 namespace Connect2Us.Controllers
 {
@@ -275,9 +276,106 @@ namespace Connect2Us.Controllers
             var userId = User.Identity.GetUserId();
             var wallet = db.Wallets
                 .Include(w => w.Transactions)
+                .Include(w => w.BankCards)
                 .FirstOrDefault(w => w.UserId == userId);
 
             return View(wallet);
+        }
+
+        // GET: Customer/ManageCards
+        public ActionResult ManageCards()
+        {
+            var userId = User.Identity.GetUserId();
+            var cards = db.BankCards.Where(c => c.UserId == userId).ToList();
+            
+            return View(cards);
+        }
+
+        // GET: Customer/AddCard
+        public ActionResult AddCard()
+        {
+            return View(new BankCardViewModel());
+        }
+
+        // POST: Customer/AddCard
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> AddCard(BankCardViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var userId = User.Identity.GetUserId();
+                
+                // Check if card already exists
+                var existingCard = db.BankCards.FirstOrDefault(c => c.CardNumber == model.CardNumber && c.UserId == userId);
+                if (existingCard != null)
+                {
+                    ModelState.AddModelError("", "This card is already added to your wallet.");
+                    return View(model);
+                }
+
+                var bankCard = new BankCard
+                {
+                    UserId = userId,
+                    CardNumber = model.CardNumber,
+                    CardholderName = model.CardholderName,
+                    ExpiryDate = model.ExpiryDate,
+                    CVV = model.CVV,
+                    CardType = BankCardViewModel.DetectCardType(model.CardNumber),
+                    IsActive = true,
+                    AddedDate = DateTime.Now
+                };
+
+                db.BankCards.Add(bankCard);
+                await db.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Card added successfully!";
+                return RedirectToAction("ManageCards");
+            }
+
+            return View(model);
+        }
+
+        // POST: Customer/RemoveCard/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> RemoveCard(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var card = db.BankCards.FirstOrDefault(c => c.Id == id && c.UserId == userId);
+            
+            if (card == null)
+            {
+                TempData["ErrorMessage"] = "Card not found.";
+                return RedirectToAction("ManageCards");
+            }
+
+            db.BankCards.Remove(card);
+            await db.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Card removed successfully!";
+            return RedirectToAction("ManageCards");
+        }
+
+        // POST: Customer/ToggleCardStatus/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ToggleCardStatus(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var card = db.BankCards.FirstOrDefault(c => c.Id == id && c.UserId == userId);
+            
+            if (card == null)
+            {
+                TempData["ErrorMessage"] = "Card not found.";
+                return RedirectToAction("ManageCards");
+            }
+
+            card.IsActive = !card.IsActive;
+            await db.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = card.IsActive ? "Card activated!" : "Card deactivated!";
+            return RedirectToAction("ManageCards");
         }
 
         // POST: Customer/AddToWallet

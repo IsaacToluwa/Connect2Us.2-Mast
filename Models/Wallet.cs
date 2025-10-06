@@ -16,5 +16,7 @@ namespace Connect2Us.Models
         public virtual ApplicationUser User { get; set; }
 
         public virtual ICollection<Transaction> Transactions { get; set; }
+        
+        public virtual ICollection<BankCard> BankCards { get; set; }
     }
 }
