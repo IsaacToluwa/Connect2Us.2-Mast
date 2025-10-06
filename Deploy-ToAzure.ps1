@@ -82,9 +82,9 @@ foreach ($dir in $directories) {
         Write-Host "✅ Copied directory: $dir" -ForegroundColor Green
     } else {
         Write-Host "⚠️  Directory not found: $dir" -ForegroundColor Yellow
-        if ($dir -eq "bin") {
-            Write-Host "📂 Current directory contents:" -ForegroundColor Cyan
-            Get-ChildItem | ForEach-Object { Write-Host "  - $($_.Name)" -ForegroundColor Gray }
+        if ($dir -eq 'bin') {
+            Write-Host "📂 'bin' directory not found. Listing current directory contents:" -ForegroundColor Cyan
+            Get-ChildItem | ForEach-Object { Write-Host "  - $($_.Name)" }
         }
     }
 }
