@@ -52,7 +52,7 @@ jobs:
       run: nuget restore Connect2Us.2.sln
     
     - name: Build solution
-      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU" /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
+      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU" /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /p:PublishUrl=published\
     
     - name: Run tests
       run: |
@@ -64,7 +64,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: webapp-artifact
-        path: published/
+        path: published
         retention-days: 30
 
   deploy-staging:
@@ -82,7 +82,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: webapp-artifact
-        path: published/
+        path: .
     
     - name: Azure Login
       uses: azure/login@v2
@@ -95,7 +95,7 @@ jobs:
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}-staging
         slot-name: 'staging'
-        package: published/
+        package: .
     
     - name: Update database (Staging)
       run: |
@@ -127,7 +127,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: webapp-artifact
-        path: published/
+        path: .
     
     - name: Azure Login
       uses: azure/login@v2
@@ -140,7 +140,7 @@ jobs:
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         slot-name: 'production'
-        package: published/
+        package: .
     
     - name: Update database (Production)
       run: |
