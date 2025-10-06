@@ -1,0 +1,26 @@
+PowerShell Script Validation Report
+===================================
+Generated: 10/07/2025 00:01:47
+
+File: Deploy-ToAzure.ps1
+Syntax Valid: True
+Issues Found:
+  - Script lacks help documentation (consider adding .SYNOPSIS, .DESCRIPTION, etc.)
+
+File: Create-AzureResources.ps1
+Syntax Valid: True
+Issues Found:
+  - Script lacks help documentation (consider adding .SYNOPSIS, .DESCRIPTION, etc.)
+
+File: Migrate-Database.ps1
+Syntax Valid: True
+Issues Found:
+  - Script lacks help documentation (consider adding .SYNOPSIS, .DESCRIPTION, etc.)
+  - Script appears to have hardcoded credentials (security risk)
+
+Summary
+=======
+Total Scripts: 3
+Syntax Errors: 0
+General Issues: 4
+Security Issues: 0

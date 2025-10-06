@@ -1,0 +1,236 @@
+name: Deploy Connect2Us to Azure
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - development
+        - staging
+        - production
+
+env:
+  AZURE_WEBAPP_NAME: connect2us-app    # set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: '.'       # set this to the path to your web app project, defaults to the repository root
+  AZURE_SQL_CONNECTION_STRING: Server=tcp:connect2usserver.database.windows.net,1433;Initial Catalog=Connect2US;Persist Security Info=False;User ID=Connect_Admin;Password=Test@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
+  DOTNET_VERSION: '4.8'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+      with:
+        vs-version: '[17.0,18.0)'
+    
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
+      with:
+        nuget-version: 'latest'
+    
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.config') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    
+    - name: Restore NuGet packages
+      run: nuget restore Connect2Us.2.sln
+    
+    - name: Build solution
+      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU" /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
+    
+    - name: Run tests
+      run: |
+        # Add test commands here if you have unit tests
+        echo "Running tests..."
+        # dotnet test --configuration Release --no-build
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: webapp-artifact
+        path: published/
+        retention-days: 30
+
+  deploy-staging:
+    needs: build
+    runs-on: windows-latest
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment:
+      name: 'staging'
+      url: ${{ steps.deploy-to-azure.outputs.webapp-url }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: webapp-artifact
+        path: published/
+    
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Deploy to Azure Web App (Staging)
+      id: deploy-to-azure
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}-staging
+        slot-name: 'staging'
+        package: published/
+    
+    - name: Update database (Staging)
+      run: |
+        # Update staging database
+        echo "Updating staging database..."
+        # Add your database migration commands here
+        # dotnet ef database update --connection "${{ secrets.AZURE_SQL_CONNECTION_STRING_STAGING }}"
+    
+    - name: Run smoke tests (Staging)
+      run: |
+        # Add smoke tests here
+        echo "Running smoke tests on staging..."
+        # curl -f https://${{ env.AZURE_WEBAPP_NAME }}-staging.azurewebsites.net/ || exit 1
+
+  deploy-production:
+    needs: [build, deploy-staging]
+    runs-on: windows-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment:
+      name: 'production'
+      url: ${{ steps.deploy-to-azure.outputs.webapp-url }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: webapp-artifact
+        path: published/
+    
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Deploy to Azure Web App (Production)
+      id: deploy-to-azure
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        slot-name: 'production'
+        package: published/
+    
+    - name: Update database (Production)
+      run: |
+        # Update production database
+        echo "Updating production database..."
+        # Add your database migration commands here
+        # dotnet ef database update --connection "${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
+    
+    - name: Run health check (Production)
+      run: |
+        # Add health check here
+        echo "Running health check on production..."
+        # curl -f https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/ || exit 1
+    
+    - name: Notify deployment success
+      if: success()
+      run: |
+        echo "Deployment to production completed successfully!"
+        # Add notification logic here (email, Slack, Teams, etc.)
+
+  database-migration:
+    needs: build
+    runs-on: windows-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+      with:
+        vs-version: '[17.0,18.0)'
+    
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
+      with:
+        nuget-version: 'latest'
+    
+    - name: Restore NuGet packages
+      run: nuget restore Connect2Us.2.sln
+    
+    - name: Build solution
+      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU"
+    
+    - name: Create database migration script
+      run: |
+        # Generate migration script
+        echo "Creating database migration script..."
+        # Add your migration script generation commands here
+        # dotnet ef migrations script --output migration-script.sql --idempotent
+    
+    - name: Upload migration script
+      uses: actions/upload-artifact@v4
+      with:
+        name: migration-script
+        path: migration-script.sql
+        retention-days: 30
+
+  security-scan:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run security scan
+      run: |
+        # Add security scanning tools here
+        echo "Running security scan..."
+        # dotnet list package --vulnerable --include-transitive
+    
+    - name: Run code analysis
+      run: |
+        # Add static code analysis here
+        echo "Running code analysis..."
+        # dotnet build --verbosity normal /p:TreatWarningsAsErrors=true
+
+  performance-test:
+    needs: deploy-staging
+    runs-on: windows-latest
+    if: github.ref == 'refs/heads/develop' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run performance tests
+      run: |
+        # Add performance testing here
+        echo "Running performance tests..."
+        # Add your performance testing tools and scripts
+    
+    - name: Generate performance report
+      run: |
+        # Generate performance test report
+        echo "Generating performance report..."
+        # Add your report generation logic here
