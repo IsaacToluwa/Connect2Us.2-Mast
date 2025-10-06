@@ -272,8 +272,30 @@ namespace Connect2Us.Controllers
             return View(viewModel);
         }
 
+        // GET: DeliveryDriver/Profile
+        public ActionResult Profile()
+        {
+            return RedirectToAction("DriverProfile");
+        }
+
         // GET: DeliveryDriver/DriverProfile
         public ActionResult DriverProfile()
+        {
+            var userId = User.Identity.GetUserId();
+            var driver = db.DeliveryDrivers
+                .Include(d => d.User)
+                .FirstOrDefault(d => d.UserId == userId);
+
+            if (driver == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View(driver);
+        }
+
+        // GET: DeliveryDriver/UpdateProfile
+        public ActionResult UpdateProfile()
         {
             var userId = User.Identity.GetUserId();
             var driver = db.DeliveryDrivers
@@ -296,11 +318,26 @@ namespace Connect2Us.Controllers
             if (ModelState.IsValid)
             {
                 var userId = User.Identity.GetUserId();
-                var driver = db.DeliveryDrivers.FirstOrDefault(d => d.UserId == userId);
+                var driver = db.DeliveryDrivers
+                    .Include(d => d.User)
+                    .FirstOrDefault(d => d.UserId == userId);
                 
                 if (driver == null)
                 {
                     return HttpNotFound();
+                }
+
+                // Update driver properties
+                driver.VehicleType = model.VehicleType;
+                driver.VehicleNumber = model.VehicleNumber;
+                driver.LicenseNumber = model.LicenseNumber;
+                driver.VehicleRegistration = model.VehicleRegistration;
+                driver.IsAvailable = model.IsAvailable;
+
+                // Update user phone number if provided
+                if (driver.User != null && !string.IsNullOrEmpty(model.User.PhoneNumber))
+                {
+                    driver.User.PhoneNumber = model.User.PhoneNumber;
                 }
 
                 await db.SaveChangesAsync();
@@ -309,7 +346,7 @@ namespace Connect2Us.Controllers
                 return RedirectToAction("DriverProfile");
             }
 
-            return View("DriverProfile", model);
+            return View(model);
         }
 
         // GET: DeliveryDriver/Wallet
