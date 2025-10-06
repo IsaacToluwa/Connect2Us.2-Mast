@@ -1,0 +1,48 @@
+@model Connect2Us.Models.TransactionViewModel
+
+@{
+    ViewBag.Title = "Transactions";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Transactions.FirstOrDefault().TransactionDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Transactions.FirstOrDefault().Order.Id)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Transactions.FirstOrDefault().Amount)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Transactions.FirstOrDefault().TransactionType)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Transactions.FirstOrDefault().Status)
+        </th>
+    </tr>
+
+@foreach (var item in Model.Transactions) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.TransactionDate)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Order.Id)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Amount)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TransactionType)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Status)
+        </td>
+    </tr>
+}
+
+</table>

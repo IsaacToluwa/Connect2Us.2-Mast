@@ -1,0 +1,38 @@
+@model Connect2Us.Models.Wallet
+
+@{ 
+    ViewBag.Title = "My Wallet";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div>
+    <h4>Current Balance: @Model.Balance.ToString("C")</h4>
+    <hr />
+
+    @using (Html.BeginForm("AddToWallet", "Customer", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <h4>Add Funds</h4>
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                <label class="control-label col-md-2">Amount</label>
+                <div class="col-md-10">
+                    <input type="number" name="amount" min="1" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Add" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<p>
+    @Html.ActionLink("Back to Dashboard", "Index")
+</p>

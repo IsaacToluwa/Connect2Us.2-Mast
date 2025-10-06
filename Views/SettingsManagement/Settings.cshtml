@@ -1,0 +1,33 @@
+@model Connect2Us.Models.SystemSettings
+
+@{ 
+    ViewBag.Title = "Settings";
+}
+
+<h2>Settings</h2>
+
+@using (Html.BeginForm("Settings", "SettingsManagement", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Id)
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.SiteName)
+        @Html.EditorFor(model => model.SiteName, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.ValidationMessageFor(model => model.SiteName, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.SiteLogo)
+        @Html.EditorFor(model => model.SiteLogo, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.ValidationMessageFor(model => model.SiteLogo, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.ContactEmail)
+        @Html.EditorFor(model => model.ContactEmail, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.ValidationMessageFor(model => model.ContactEmail, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+}

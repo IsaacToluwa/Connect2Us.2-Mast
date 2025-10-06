@@ -1,0 +1,128 @@
+@model Connect2Us.Models.Cart
+
+@{
+    ViewBag.Title = "Shopping Cart - Connect2US";
+}
+
+<div class="container">
+    <h2><i class="fas fa-shopping-cart"></i> @ViewBag.Title</h2>
+    <hr />
+
+    @if (Model == null || !Model.CartItems.Any())
+    {
+        <div class="jumbotron text-center">
+            <h3><i class="fas fa-shopping-cart"></i> Your cart is empty</h3>
+            <p class="lead">Start shopping to add items to your cart!</p>
+            <p>@Html.ActionLink("Browse Books", "Index", "Home", null, new { @class = "btn btn-primary btn-lg" })</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fas fa-list"></i> Cart Items</h4>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th class="text-right">Price</th>
+                                        <th class="text-right">Subtotal</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.CartItems)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="media">
+                                                    <div class="media-left">
+                                                        <img src="@item.Product.ImageUrl" alt="@item.Product.Name" style="width: 60px; height: 80px; object-fit: cover;" class="media-object" />
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <h5 class="media-heading">@item.Product.Name</h5>
+                                                        <p class="text-muted">@item.Product.Author</p>
+                                                        <small class="text-muted">ISBN: @item.Product.ISBN</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge">@item.Quantity</span>
+                                            </td>
+                                            <td class="text-right">@item.Product.Price.ToString("C")</td>
+                                            <td class="text-right"><strong>@((item.Quantity * item.Product.Price).ToString("C"))</strong></td>
+                                            <td>
+                                                @using (Html.BeginForm("RemoveFromCart", "Cart", new { productId = item.ProductId }))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Remove from cart">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4><i class="fas fa-calculator"></i> Order Summary</h4>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <p>Items (@Model.CartItems.Sum(i => i.Quantity)):</p>
+                            </div>
+                            <div class="col-xs-6 text-right">
+                                <p><strong>@Model.CartItems.Sum(item => item.Quantity * item.Product.Price).ToString("C")</strong></p>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <h4>Total:</h4>
+                            </div>
+                            <div class="col-xs-6 text-right">
+                                <h4><strong>@Model.CartItems.Sum(item => item.Quantity * item.Product.Price).ToString("C")</strong></h4>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-xs-12">
+                                @Html.ActionLink("Proceed to Checkout", "CreateCheckoutSession", "Stripe", null, new { @class = "btn btn-success btn-block btn-lg" })
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <a href="@Url.Action("Index", "Home")" class="btn btn-default btn-block">
+                                    <i class="fas fa-arrow-left"></i> Continue Shopping
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h5><i class="fas fa-info-circle"></i> Need Help?</h5>
+                    </div>
+                    <div class="panel-body">
+                        <p>Questions about your order? Contact us at support@connect2us.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
