@@ -21,7 +21,10 @@ env:
   AZURE_WEBAPP_NAME: connect2us-app    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'       # set this to the path to your web app project, defaults to the repository root
   AZURE_SQL_CONNECTION_STRING: Server=tcp:connect2usserver.database.windows.net,1433;Initial Catalog=Connect2US;Persist Security Info=False;User ID=Connect_Admin;Password=Test@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
+  AZURE_SQL_CONNECTION_STRING_STAGING: ${{ secrets.AZURE_SQL_CONNECTION_STRING_STAGING }}
   DOTNET_VERSION: '4.8'
+  AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+  AZURE_WEBAPP_PUBLISH_PROFILE_STAGING: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
 
 jobs:
   build:
@@ -52,7 +55,10 @@ jobs:
       run: nuget restore Connect2Us.2.sln
     
     - name: Build solution
-      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU" /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /p:PublishUrl=published\
+      shell: pwsh
+      run: |
+        $msbuild = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+        & $msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU"
     
     - name: Run tests
       run: |
@@ -60,15 +66,9 @@ jobs:
         echo "Running tests..."
         # dotnet test --configuration Release --no-build
     
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: webapp-artifact
-        path: published
-        retention-days: 30
+# No artifact upload needed for Web Deploy
 
   deploy-staging:
-    needs: build
     runs-on: windows-latest
     if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
     environment:
@@ -78,26 +78,43 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
       with:
-        name: webapp-artifact
-        path: .
+        vs-version: '[17.0,18.0)'
     
-    - name: Azure Login
-      uses: azure/login@v2
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        nuget-version: 'latest'
     
-    - name: Deploy to Azure Web App (Staging)
-      id: deploy-to-azure
-      uses: azure/webapps-deploy@v3
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}-staging
-        slot-name: 'staging'
-        package: .
+    - name: Restore NuGet packages
+      run: nuget restore Connect2Us.2.sln
+    
+    - name: Build solution
+      shell: pwsh
+      run: |
+        $msbuild = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+        & $msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU"
+    
+    - name: Deploy to Azure Web App (Staging) using MSDeploy
+      shell: pwsh
+      run: |
+        $msbuild = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+        & $msbuild Connect2Us.2.csproj `
+          /p:Configuration=Release `
+          /p:Platform="Any CPU" `
+          /p:DeployOnBuild=true `
+          /p:PublishProfile="Connect2Us - Web Deploy Staging" `
+          /p:AllowUntrustedCertificate=true `
+          /p:UserName="$connect2us-gzangpd0gaftcnhs-staging" `
+          /p:Password="${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}" `
+          /p:VisualStudioVersion=17.0 `
+          /p:EnableMSDeployBackup=true `
+          /p:SkipExtraFilesOnServer=True
     
     - name: Update database (Staging)
+      shell: pwsh
       run: |
         # Update staging database
         echo "Updating staging database..."
@@ -113,7 +130,7 @@ jobs:
         # curl -f https://${{ env.AZURE_WEBAPP_NAME }}-staging.azurewebsites.net/ || exit 1
 
   deploy-production:
-    needs: [build, deploy-staging]
+    needs: deploy-staging
     runs-on: windows-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
     environment:
@@ -123,26 +140,43 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
       with:
-        name: webapp-artifact
-        path: .
+        vs-version: '[17.0,18.0)'
     
-    - name: Azure Login
-      uses: azure/login@v2
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        nuget-version: 'latest'
     
-    - name: Deploy to Azure Web App (Production)
-      id: deploy-to-azure
-      uses: azure/webapps-deploy@v3
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        slot-name: 'production'
-        package: .
+    - name: Restore NuGet packages
+      run: nuget restore Connect2Us.2.sln
+    
+    - name: Build solution
+      shell: pwsh
+      run: |
+        $msbuild = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+        & $msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU"
+    
+    - name: Deploy to Azure Web App (Production) using MSDeploy
+      shell: pwsh
+      run: |
+        $msbuild = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+        & $msbuild Connect2Us.2.csproj `
+          /p:Configuration=Release `
+          /p:Platform="Any CPU" `
+          /p:DeployOnBuild=true `
+          /p:PublishProfile="Connect2Us - Web Deploy" `
+          /p:AllowUntrustedCertificate=true `
+          /p:UserName="$connect2us-gzangpd0gaftcnhs" `
+          /p:Password="${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" `
+          /p:VisualStudioVersion=17.0 `
+          /p:EnableMSDeployBackup=true `
+          /p:SkipExtraFilesOnServer=True
     
     - name: Update database (Production)
+      shell: pwsh
       run: |
         # Update production database
         echo "Updating production database..."
@@ -185,29 +219,29 @@ jobs:
       run: nuget restore Connect2Us.2.sln
     
     - name: Build solution
-      run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU"
+      shell: pwsh
+      run: |
+        $msbuild = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+        & $msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU"
     
     - name: Create database migration script
+      shell: pwsh
       run: |
-        # Generate migration script using Entity Framework 6
-        echo "Creating database migration script..."
-        # Use our Migrate-Database.ps1 script to generate migration script
-        & powershell -ExecutionPolicy Bypass -File ".\Migrate-Database.ps1" `
-          -ConnectionString "${{ env.AZURE_SQL_CONNECTION_STRING }}" `
-          -ScriptMigration `
-          -OutputScriptPath "migration-script.sql"
-        
-        if (Test-Path "migration-script.sql") {
-          Write-Host "Migration script generated successfully: migration-script.sql"
-          $scriptSize = (Get-Item "migration-script.sql").Length
-          Write-Host "Script size: $scriptSize bytes"
-          Get-Content "migration-script.sql" -First 10
-        } else {
-          Write-Host "Migration script generation completed (no changes to apply)"
-          # Create empty file to satisfy artifact upload
-          New-Item "migration-script.sql" -ItemType File -Force
-          Set-Content "migration-script.sql" "-- No database changes to apply"
-        }
+        $msbuild = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+        & $msbuild Connect2Us.2.csproj `
+          /p:Configuration=Release `
+          /p:Platform="Any CPU" `
+          /p:DeployOnBuild=true `
+          /p:PublishProfile="Connect2Us - Web Deploy" `
+          /p:AllowUntrustedCertificate=true `
+          /p:UserName="$connect2us-gzangpd0gaftcnhs" `
+          /p:Password="${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" `
+          /p:VisualStudioVersion=17.0 `
+          /p:EnableMSDeployBackup=true `
+          /p:SkipExtraFilesOnServer=True `
+          /p:EnableSqlPackage=true `
+          /p:SqlPublishProfilePath="Properties\PublishProfiles\Connect2Us - Web Deploy.pubxml" `
+          /p:SqlConnectionString="${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
     
     - name: Upload migration script
       uses: actions/upload-artifact@v4
