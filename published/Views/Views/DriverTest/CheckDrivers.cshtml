@@ -1,0 +1,44 @@
+@{
+    ViewBag.Title = "Driver Status Check";
+}
+
+<h2>Driver Status Check</h2>
+
+<div class="alert alert-info">
+    <strong>Total Drivers:</strong> @ViewBag.TotalDrivers<br/>
+    <strong>Available Drivers:</strong> @ViewBag.AvailableDrivers
+</div>
+
+<h3>All Drivers</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Is Available</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var driver in ViewBag.AllDrivers)
+        {
+            <tr>
+                <td>@driver.Id</td>
+                <td>@driver.User.FullName</td>
+                <td>@driver.User.Email</td>
+                <td>@(driver.IsAvailable ? "Yes" : "No")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (ViewBag.AvailableDrivers == 0)
+{
+    <div class="alert alert-warning">
+        No drivers are currently available! 
+        <a href="@Url.Action("MakeAllAvailable")" class="btn btn-primary">Make All Drivers Available</a>
+    </div>
+}
+
+<hr/>
+<a href="@Url.Action("OrderDetails", "OrderManagement", new { id = 1 })" class="btn btn-success">Test Order Details Page</a>

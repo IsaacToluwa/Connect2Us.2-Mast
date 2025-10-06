@@ -1,0 +1,136 @@
+@model Connect2Us.Models.DriverEarningsViewModel
+
+@{
+    ViewBag.Title = "Driver Earnings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Driver Earnings</h2>
+            
+            <!-- Driver Info Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Driver Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> @Model.Driver.User.FirstName @Model.Driver.User.LastName</p>
+                            <p><strong>Email:</strong> @Model.Driver.User.Email</p>
+                            <p><strong>Phone Number:</strong> @Model.Driver.User.PhoneNumber</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>License Number:</strong> @Model.Driver.LicenseNumber</p>
+                            <p><strong>Vehicle Type:</strong> @Model.Driver.VehicleType</p>
+                            <p><strong>Status:</strong> @(Model.Driver.IsAvailable ? "Available" : "Not Available")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Earnings Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">Total Earnings</h5>
+                            <h3 class="text-success">@Model.TotalEarnings.ToString("C")</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">Monthly Earnings</h5>
+                            <h3 class="text-info">@Model.MonthlyEarnings.ToString("C")</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">Weekly Earnings</h5>
+                            <h3 class="text-warning">@Model.WeeklyEarnings.ToString("C")</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">Completed Deliveries</h5>
+                            <h3 class="text-secondary">@Model.CompletedDeliveries</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Earnings Table -->
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Recent Earnings</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentEarnings != null && Model.RecentEarnings.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Delivery ID</th>
+                                        <th>Order ID</th>
+                                        <th>Delivery Date</th>
+                                        <th>Delivery Fee</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var delivery in Model.RecentEarnings)
+                                    {
+                                        <tr>
+                                            <td>@delivery.Id</td>
+                                            <td>@delivery.OrderId</td>
+                                            <td>@(@delivery.DeliveryDate != null ? @delivery.DeliveryDate.Value.ToString("MM/dd/yyyy") : "N/A")</td>
+                                            <td>@delivery.DeliveryFee.ToString("C")</td>
+                                            <td>
+                                                <span class="badge @(delivery.Status == "Delivered" ? "badge-success" : 
+                                                                 delivery.Status == "In Transit" ? "badge-warning" : 
+                                                                 "badge-secondary")">
+                                                    @delivery.Status
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center">
+                            <p class="text-muted">No recent earnings to display.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Back to Dashboard Button -->
+            <div class="mt-4">
+                <a href="@Url.Action("Index", "DeliveryDriver")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add any additional JavaScript functionality here
+            console.log("Driver earnings page loaded");
+        });
+    </script>
+}

@@ -1,0 +1,32 @@
+@model IEnumerable<Connect2Us.Models.Order>
+
+@{
+    ViewBag.Title = "Manage Orders";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<table class="table">
+    <tr>
+        <th>Order ID</th>
+        <th>Customer</th>
+        <th>Order Date</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th></th>
+    </tr>
+
+    @foreach (var order in Model)
+    {
+        <tr>
+            <td>@order.Id</td>
+            <td>@order.Customer.User.UserName</td>
+            <td>@order.OrderDate.ToShortDateString()</td>
+            <td>@order.TotalAmount.ToString("C")</td>
+            <td>@order.Status</td>
+            <td>
+                @Html.ActionLink("Details", "OrderDetails", new { id = order.Id })
+            </td>
+        </tr>
+    }
+</table>

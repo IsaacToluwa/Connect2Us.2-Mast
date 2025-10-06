@@ -1,0 +1,35 @@
+@model Connect2Us.Models.Customer
+
+@{ 
+    ViewBag.Title = "Customer Dashboard";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div>
+    <h4>Welcome, @Model.User.FirstName @Model.User.LastName</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.User.Email)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.User.Email)
+        </dd>
+
+        <dt>
+            Wallet Balance
+        </dt>
+
+        <dd>
+            @ViewBag.WalletBalance.ToString("C")
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Browse Products", "Browse") |
+    @Html.ActionLink("My Orders", "MyOrders") |
+    @Html.ActionLink("My Wallet", "Wallet")
+</p>

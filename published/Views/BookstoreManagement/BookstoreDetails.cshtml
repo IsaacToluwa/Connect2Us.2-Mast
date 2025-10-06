@@ -1,0 +1,40 @@
+@model Connect2Us.Models.Bookstore
+
+@{ 
+    ViewBag.Title = "Bookstore Details";
+}
+
+<h2>Bookstore Details</h2>
+
+<div>
+    <h4>@Model.Name</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.User.UserName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.User.UserName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IsActive)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.IsActive)
+        </dd>
+
+    </dl>
+</div>
+
+@using (Html.BeginForm("ToggleBookstoreStatus", "BookstoreManagement", FormMethod.Post)) {
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Id)
+    <button type="submit" class="btn btn-primary">Toggle Status</button>
+}
+
+<p>
+    @Html.ActionLink("Back to List", "Bookstores")
+</p>

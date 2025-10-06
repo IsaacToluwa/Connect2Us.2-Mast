@@ -1,0 +1,158 @@
+@model Connect2Us.ViewModels.DeliveryDriverDashboardViewModel
+@{
+    ViewBag.Title = "Driver Dashboard";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Welcome, @Model.Driver.User.FirstName @Model.Driver.User.LastName</h2>
+            <p class="text-muted">Manage your delivery operations</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Deliveries</h5>
+                    <h3>@Model.TotalDeliveries</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Completed</h5>
+                    <h3>@Model.CompletedDeliveries</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending</h5>
+                    <h3>@Model.PendingDeliveries</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Available</h5>
+                    <h3>@Model.AvailableDeliveries</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Wallet Card -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Wallet Balance</h5>
+                    <h3>@Model.WalletBalance.ToString("C")</h3>
+                    <a href="@Url.Action("Wallet", "DeliveryDriver")" class="btn btn-light btn-sm mt-2">
+                        <i class="fas fa-wallet"></i> Manage Wallet
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <a href="@Url.Action("AvailableDeliveries", "DeliveryDriver")" class="btn btn-success">
+                            <i class="fas fa-plus"></i> View Available Deliveries
+                        </a>
+                        <a href="@Url.Action("MyDeliveries", "DeliveryDriver")" class="btn btn-primary">
+                            <i class="fas fa-truck"></i> My Deliveries
+                        </a>
+                        <a href="@Url.Action("Earnings", "DeliveryDriver")" class="btn btn-info">
+                            <i class="fas fa-dollar-sign"></i> View Earnings
+                        </a>
+                        <a href="@Url.Action("Profile", "DeliveryDriver")" class="btn btn-warning">
+                            <i class="fas fa-user"></i> Update Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Deliveries -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Deliveries</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentDeliveries.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Customer</th>
+                                        <th>Bookstore</th>
+                                        <th>Assigned Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var delivery in Model.RecentDeliveries)
+                                    {
+                                        <tr>
+                                            <td>@delivery.Order.OrderNumber</td>
+                                            <td>@delivery.Order.Customer.User.FirstName @delivery.Order.Customer.User.LastName</td>
+                                            <td>@delivery.Order.Bookstore.Name</td>
+                                            <td>@delivery.AssignedDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                            <td>
+                                                <span class="badge badge-@(delivery.Status.ToLower() == "assigned" ? "warning" : 
+                                                                                    delivery.Status.ToLower() == "picked up" ? "info" :
+                                                                                    delivery.Status.ToLower() == "in transit" ? "primary" :
+                                                                                    delivery.Status.ToLower() == "delivered" ? "success" : "secondary")">
+                                                    @delivery.Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("DeliveryDetails", "DeliveryDriver", new { id = delivery.Id })" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No recent deliveries found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add any dashboard-specific JavaScript here
+            console.log('Driver dashboard loaded');
+        });
+    </script>
+}

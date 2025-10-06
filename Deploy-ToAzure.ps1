@@ -1,0 +1,109 @@
+# Connect2Us Azure Deployment Script
+# This script builds and packages your application for Azure deployment
+
+param(
+    [string]$Configuration = "Release",
+    [string]$Platform = "Any CPU",
+    [string]$OutputDir = ".\published"
+)
+
+Write-Host "🚀 Starting Connect2Us Azure Deployment Build..." -ForegroundColor Cyan
+Write-Host "==========================================" -ForegroundColor Cyan
+
+# Check if MSBuild is available
+try {
+    $msbuildPath = "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+    if (-not (Test-Path $msbuildPath)) {
+        Write-Host "❌ MSBuild not found at expected location" -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "✅ MSBuild found: $msbuildPath" -ForegroundColor Green
+} catch {
+    Write-Host "❌ Error locating MSBuild: $($_.Exception.Message)" -ForegroundColor Red
+    exit 1
+}
+
+# Build the project
+Write-Host "🔨 Building project..." -ForegroundColor Yellow
+Write-Host "Running: MSBuild /nologo /verbosity:m /t:Build /p:Configuration=$Configuration /p:Platform=`"$Platform`"" -ForegroundColor Gray
+
+& $msbuildPath /nologo /verbosity:m /t:Build /p:Configuration=$Configuration /p:Platform="$Platform"
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ Build failed with exit code $LASTEXITCODE" -ForegroundColor Red
+    Write-Host $buildResult -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "✅ Build completed successfully!" -ForegroundColor Green
+
+# Create output directory
+Write-Host "📁 Creating deployment package..." -ForegroundColor Yellow
+New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
+
+# Copy essential files for deployment
+$filesToCopy = @(
+    @{Source = ".\bin"; Destination = "$OutputDir\bin"; Recurse = $true},
+    @{Source = ".\Content"; Destination = "$OutputDir\Content"; Recurse = $true},
+    @{Source = ".\Scripts"; Destination = "$OutputDir\Scripts"; Recurse = $true},
+    @{Source = ".\Views"; Destination = "$OutputDir\Views"; Recurse = $true},
+    @{Source = ".\*.config"; Destination = "$OutputDir"; Recurse = $false},
+    @{Source = ".\*.asax"; Destination = "$OutputDir"; Recurse = $false},
+    @{Source = ".\*.ico"; Destination = "$OutputDir"; Recurse = $false}
+)
+
+foreach ($file in $filesToCopy) {
+    try {
+        if ($file.Recurse) {
+            if (Test-Path $file.Source) {
+                Copy-Item -Path $file.Source -Destination $file.Destination -Recurse -Force
+                Write-Host "✅ Copied: $($file.Source) -> $($file.Destination)" -ForegroundColor Green
+            } else {
+                Write-Host "⚠️  Source not found: $($file.Source)" -ForegroundColor Yellow
+            }
+        } else {
+            Get-ChildItem $file.Source | ForEach-Object {
+                Copy-Item -Path $_.FullName -Destination $file.Destination -Force
+                Write-Host "✅ Copied: $($_.Name) -> $($file.Destination)" -ForegroundColor Green
+            }
+        }
+    } catch {
+        Write-Host "❌ Error copying $($file.Source): $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+
+# Verify the package
+Write-Host "🔍 Verifying deployment package..." -ForegroundColor Yellow
+$packageContents = Get-ChildItem $OutputDir -Recurse
+Write-Host "📦 Package contains $($packageContents.Count) files" -ForegroundColor Cyan
+
+# Check for critical files
+$criticalFiles = @("Web.config", "Global.asax", "bin\Connect2Us.2.dll")
+$missingFiles = @()
+
+foreach ($file in $criticalFiles) {
+    $fullPath = Join-Path $OutputDir $file
+    if (-not (Test-Path $fullPath)) {
+        $missingFiles += $file
+    }
+}
+
+if ($missingFiles.Count -gt 0) {
+    Write-Host "❌ Missing critical files:" -ForegroundColor Red
+    $missingFiles | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+    exit 1
+}
+
+Write-Host "✅ All critical files present!" -ForegroundColor Green
+
+# Display package summary
+Write-Host "==========================================" -ForegroundColor Cyan
+Write-Host "✅ Deployment package created successfully!" -ForegroundColor Green
+Write-Host "📁 Package location: $(Resolve-Path $OutputDir)" -ForegroundColor Cyan
+Write-Host "📊 Package size: $([math]::Round((Get-ChildItem $OutputDir -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB, 2)) MB" -ForegroundColor Cyan
+
+Write-Host "`n🚀 Ready for Azure deployment!" -ForegroundColor Green
+Write-Host "Next steps:" -ForegroundColor Yellow
+Write-Host "1. Commit and push changes to trigger GitHub Actions deployment" -ForegroundColor White
+Write-Host "2. Or manually deploy using Azure CLI or Azure Portal" -ForegroundColor White
+Write-Host "3. Test your application at: https://connect2us-webapp.azurewebsites.net" -ForegroundColor White

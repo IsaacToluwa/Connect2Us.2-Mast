@@ -1,0 +1,44 @@
+@model IEnumerable<Connect2Us.Models.Category>
+
+@{ 
+    ViewBag.Title = "Categories";
+}
+
+<h2>Categories</h2>
+
+@using (Html.BeginForm("AddCategory", "CategoryManagement", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label for="categoryName">Category Name</label>
+        <input type="text" name="categoryName" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Add Category</button>
+}
+
+<hr />
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @using (Html.BeginForm("DeleteCategory", "CategoryManagement", new { categoryId = item.Id }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger">Delete</button>
+            }
+        </td>
+    </tr>
+}
+
+</table>

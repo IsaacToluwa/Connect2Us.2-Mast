@@ -1,0 +1,157 @@
+@model Connect2Us.ViewModels.WalletWithCardsViewModel
+
+@{
+    ViewBag.Title = "My Wallet";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2>@ViewBag.Title</h2>
+            <p class="text-muted">Manage your wallet balance</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Current Balance</h5>
+                    <h3>@Model.Wallet.Balance.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Bank Cards</h5>
+                    <p class="card-text">@Model.BankCards.Count cards saved</p>
+                    <a href="@Url.Action("ManageCards")" class="btn btn-outline-primary">Manage Cards</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Add Money to Wallet</h5>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("AddToWallet", "DeliveryDriver", FormMethod.Post, new { @class = "form-horizontal" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="form-group">
+                            <label for="depositAmount">Amount</label>
+                            <input type="number" class="form-control" id="depositAmount" name="amount" step="0.01" min="0.01" required />
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Add Money
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Withdraw Money from Wallet</h5>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("WithdrawFromWallet", "DeliveryDriver", FormMethod.Post, new { @class = "form-horizontal" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="form-group">
+                            <label for="withdrawAmount">Amount</label>
+                            <input type="number" class="form-control" id="withdrawAmount" name="amount" step="0.01" min="0.01" max="@Model.Wallet.Balance" required />
+                        </div>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-minus"></i> Withdraw Money
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Transactions</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Wallet.Transactions.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Balance Before</th>
+                                        <th>Balance After</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var transaction in Model.Wallet.Transactions.OrderByDescending(t => t.TransactionDate).Take(10))
+                                    {
+                                        <tr>
+                                            <td>@transaction.TransactionDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                            <td>
+                                                <span class="badge badge-@(transaction.TransactionType == "Deposit" ? "success" : transaction.TransactionType == "Withdrawal" ? "warning" : "primary")">
+                                                    @transaction.TransactionType
+                                                </span>
+                                            </td>
+                                            <td>@transaction.Amount.ToString("C")</td>
+                                            <td>@transaction.BalanceBefore.ToString("C")</td>
+                                            <td>@transaction.BalanceAfter.ToString("C")</td>
+                                            <td>@transaction.Description</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No transactions found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add any wallet-specific JavaScript here
+            console.log('Delivery driver wallet page loaded');
+        });
+    </script>
+}
