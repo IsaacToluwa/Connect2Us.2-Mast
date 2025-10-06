@@ -77,16 +77,17 @@ Write-Host "📁 Copying deployment files..." -ForegroundColor Yellow
 # Copy directories
 $directories = @("bin", "Content", "Scripts", "Views")
 foreach ($dir in $directories) {
-    if (Test-Path $dir) {
-        Copy-Item -Path $dir -Destination "$OutputDir\$dir" -Recurse -Force
-        Write-Host "✅ Copied directory: $dir" -ForegroundColor Green
-    } else {
+    if (-not (Test-Path $dir)) {
         Write-Host "⚠️  Directory not found: $dir" -ForegroundColor Yellow
         if ($dir -eq 'bin') {
             Write-Host "📂 'bin' directory not found. Listing current directory contents:" -ForegroundColor Cyan
             Get-ChildItem | ForEach-Object { Write-Host "  - $($_.Name)" }
         }
+        continue
     }
+
+    Copy-Item -Path $dir -Destination "$OutputDir\$dir" -Recurse -Force
+    Write-Host "✅ Copied directory: $dir" -ForegroundColor Green
 }
 
 # Copy individual files using wildcards
