@@ -102,10 +102,12 @@ jobs:
         # Update staging database
         echo "Updating staging database..."
         # Use our Migrate-Database.ps1 script to update database
-        & powershell -ExecutionPolicy Bypass -File ".\Migrate-Database.ps1" `
-          -ConnectionString "${{ secrets.AZURE_SQL_CONNECTION_STRING_STAGING }}" `
-          -UpdateDatabase:$true `
-          -Verbose:$true
+        & powershell -ExecutionPolicy Bypass -Command {
+          $VerbosePreference = 'Continue'
+          & ".\Migrate-Database.ps1" `
+            -ConnectionString $args[0] `
+            -UpdateDatabase:$true
+        } -args "${{ secrets.AZURE_SQL_CONNECTION_STRING_STAGING }}"
     
     - name: Run smoke tests (Staging)
       run: |
@@ -148,10 +150,12 @@ jobs:
         # Update production database
         echo "Updating production database..."
         # Use our Migrate-Database.ps1 script to update database
-        & powershell -ExecutionPolicy Bypass -File ".\Migrate-Database.ps1" `
-          -ConnectionString "${{ secrets.AZURE_SQL_CONNECTION_STRING }}" `
-          -UpdateDatabase:$true `
-          -Verbose:$true
+        & powershell -ExecutionPolicy Bypass -Command {
+          $VerbosePreference = 'Continue'
+          & ".\Migrate-Database.ps1" `
+            -ConnectionString $args[0] `
+            -UpdateDatabase:$true
+        } -args "${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
     
     - name: Run health check (Production)
       run: |
@@ -194,12 +198,14 @@ jobs:
         # Generate migration script using Entity Framework 6
         echo "Creating database migration script..."
         # Use our Migrate-Database.ps1 script to generate migration script
-        $migrationResult = & powershell -ExecutionPolicy Bypass -File ".\Migrate-Database.ps1" `
-          -ConnectionString "${{ env.AZURE_SQL_CONNECTION_STRING }}" `
-          -ScriptMigration:$true `
-          -OutputScriptPath "migration-script.sql" `
-          -UpdateDatabase:$false `
-          -Verbose:$true
+        $migrationResult = & powershell -ExecutionPolicy Bypass -Command {
+          $VerbosePreference = 'Continue'
+          & ".\Migrate-Database.ps1" `
+            -ConnectionString $args[0] `
+            -ScriptMigration:$true `
+            -OutputScriptPath "migration-script.sql" `
+            -UpdateDatabase:$false
+        } -args "${{ env.AZURE_SQL_CONNECTION_STRING }}"
         
         if (Test-Path "migration-script.sql") {
           Write-Host "Migration script generated successfully: migration-script.sql"
