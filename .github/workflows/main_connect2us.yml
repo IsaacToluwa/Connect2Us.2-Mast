@@ -27,9 +27,19 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore
 
-      - name: Publish to folder
-        run: msbuild /nologo /verbosity:m /t:Build /t:Package /p:PackageLocation="published\" /p:PackageAsSingleFile=false
-
+      - name: Build and Publish
+        run: |
+          dotnet build --configuration Release
+          mkdir published
+          xcopy /E /I /Y bin published\bin
+          xcopy /E /I /Y Content published\Content
+          xcopy /E /I /Y Scripts published\Scripts
+          xcopy /E /I /Y Views published\Views
+          copy /Y *.config published\
+          copy /Y *.asax published\
+          copy /Y *.ico published\
+          copy /Y *.dll published\ 2>nul || exit 0
+          
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
