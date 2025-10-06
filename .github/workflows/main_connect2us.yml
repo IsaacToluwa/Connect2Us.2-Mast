@@ -35,6 +35,7 @@ jobs:
           Copy-Item -Path Content -Destination published\Content -Recurse -Force
           Copy-Item -Path Scripts -Destination published\Scripts -Recurse -Force
           Copy-Item -Path Views -Destination published\Views -Recurse -Force
+          Copy-Item -Path App_Data -Destination published\App_Data -Recurse -Force
           Copy-Item -Path *.config -Destination published\ -Force
           Copy-Item -Path *.asax -Destination published\ -Force
           Copy-Item -Path *.ico -Destination published\ -Force

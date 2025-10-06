@@ -17,6 +17,14 @@ namespace Connect2Us._2
         protected void Application_Start()
         {
             string logPath = HttpContext.Current.Server.MapPath("~/App_Data/startup_log.txt");
+            
+            // Ensure App_Data directory exists
+            string logDirectory = System.IO.Path.GetDirectoryName(logPath);
+            if (!System.IO.Directory.Exists(logDirectory))
+            {
+                System.IO.Directory.CreateDirectory(logDirectory);
+            }
+            
             System.IO.File.AppendAllText(logPath, "Application_Start entered at " + DateTime.Now + "\n");
             
             try
