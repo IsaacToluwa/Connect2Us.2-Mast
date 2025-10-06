@@ -104,6 +104,20 @@ foreach ($pattern in $filePatterns) {
     }
 }
 
+# Copy individual files using wildcards
+$filePatterns = @("*.config", "*.asax", "*.ico")
+foreach ($pattern in $filePatterns) {
+    $files = Get-ChildItem $pattern -ErrorAction SilentlyContinue
+    if ($files) {
+        foreach ($file in $files) {
+            Copy-Item -Path $file.FullName -Destination $OutputDir -Force
+            Write-Host "✅ Copied file: $($file.Name)" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "⚠️  No files found matching pattern: $pattern" -ForegroundColor Yellow
+    }
+}
+
 # Verify the package
 Write-Host "🔍 Verifying deployment package..." -ForegroundColor Yellow
 $packageContents = Get-ChildItem $OutputDir -Recurse
