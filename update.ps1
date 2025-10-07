@@ -1,2 +1,0 @@
-Import-Module "C:\Users\olatu\source\repos\Connect2Us.2\packages\EntityFramework.6.4.4\tools\EntityFramework6.psm1"
-Update-Database -ConnectionString "Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=aspnet-Connect2Us.2-20240728120731;Integrated Security=True;MultipleActiveResultSets=True;App=EntityFramework" -ConnectionProviderName "System.Data.SqlClient" -Verbose
