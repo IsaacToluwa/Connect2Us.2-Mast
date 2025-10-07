@@ -1,0 +1,159 @@
+@model Connect2Us.Models.Product
+@{
+    ViewBag.Title = "Add New Product";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Add New Product</h2>
+            <p class="text-muted">Add a new product to your inventory</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Product Information</h5>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("CreateProduct", "Bookstore", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Name)
+                            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", placeholder = "Enter product name" } })
+                            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Description)
+                            @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = "3", placeholder = "Enter product description" })
+                            @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(model => model.CategoryId, "Category")
+                                @Html.DropDownListFor(model => model.CategoryId, (SelectList)ViewBag.CategoryId, "-- Select Category --", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(model => model.ProductType)
+                                @Html.DropDownListFor(model => model.ProductType, new SelectList(new[] { "Book", "E-book", "Stationery", "Magazine", "Other" }), "-- Select Type --", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.ProductType, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(model => model.Price)
+                                @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00", step = "0.01" } })
+                                @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(model => model.StockQuantity)
+                                @Html.EditorFor(model => model.StockQuantity, new { htmlAttributes = new { @class = "form-control", placeholder = "0" } })
+                                @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(model => model.ISBN)
+                                @Html.EditorFor(model => model.ISBN, new { htmlAttributes = new { @class = "form-control", placeholder = "Enter ISBN" } })
+                                @Html.ValidationMessageFor(model => model.ISBN, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(model => model.Author)
+                                @Html.EditorFor(model => model.Author, new { htmlAttributes = new { @class = "form-control", placeholder = "Enter author name" } })
+                                @Html.ValidationMessageFor(model => model.Author, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Publisher)
+                            @Html.EditorFor(model => model.Publisher, new { htmlAttributes = new { @class = "form-control", placeholder = "Enter publisher name" } })
+                            @Html.ValidationMessageFor(model => model.Publisher, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-check">
+                                @Html.CheckBoxFor(model => model.IsForRent, new { @class = "form-check-input", id = "IsForRent" })
+                                @Html.LabelFor(model => model.IsForRent, new { @class = "form-check-label" })
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="rentalPriceGroup" style="display:none;">
+                            @Html.LabelFor(model => model.RentalPrice)
+                            @Html.EditorFor(model => model.RentalPrice, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00", step = "0.01" } })
+                            @Html.ValidationMessageFor(model => model.RentalPrice, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-check">
+                                @Html.CheckBoxFor(model => model.IsAvailable, new { @class = "form-check-input" })
+                                @Html.LabelFor(model => model.IsAvailable, new { @class = "form-check-label" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.Label("Product Image")
+                            <input type="file" name="imageFile" class="form-control-file" accept="image/*">
+                            <small class="form-text text-muted">Upload a product image (optional)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Create Product
+                            </button>
+                            <a href="@Url.Action("Products", "Bookstore")" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Tips for Adding Products</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Fill in all required fields</li>
+                        <li><i class="fas fa-check text-success"></i> Use clear, descriptive names</li>
+                        <li><i class="fas fa-check text-success"></i> Add detailed descriptions</li>
+                        <li><i class="fas fa-check text-success"></i> Set competitive prices</li>
+                        <li><i class="fas fa-check text-success"></i> Upload high-quality images</li>
+                        <li><i class="fas fa-check text-success"></i> Keep stock quantities updated</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function() {
+            // Toggle rental price field based on IsForRent checkbox
+            $('#IsForRent').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#rentalPriceGroup').show();
+                } else {
+                    $('#rentalPriceGroup').hide();
+                }
+            });
+
+            // Trigger change event to set initial state
+            $('#IsForRent').trigger('change');
+        });
+    </script>
+}

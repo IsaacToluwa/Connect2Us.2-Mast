@@ -1,0 +1,28 @@
+@model IEnumerable<Connect2Us.Models.Bookstore>
+
+@{
+    ViewBag.Title = "Manage Bookstores";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Owner</th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td>@item.User.UserName</td>
+            <td>
+                @Html.ActionLink("Edit", "EditBookstore", "BookstoreManagement", new { id = item.UserId }, null)
+                @Html.ActionLink("Details", "BookstoreDetails", "Admin", new { id = item.UserId }, null) |
+                @Html.ActionLink("Delete", "DeleteBookstore", "BookstoreManagement", new { id = item.UserId }, null)
+            </td>
+        </tr>
+    }
+</table>

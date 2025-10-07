@@ -1,0 +1,96 @@
+@model Connect2Us.Models.Order
+
+@{
+    ViewBag.Title = "Order Details";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div>
+    <h4>Order #@Model.Id</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            Customer
+        </dt>
+
+        <dd>
+            @Model.Customer.User.UserName
+        </dd>
+        
+        <dt>
+            Customer Address
+        </dt>
+
+        <dd>
+            @Model.Customer.Address
+        </dd>
+        
+        <dt>
+            Delivery Address
+        </dt>
+
+        <dd>
+            @Model.DeliveryAddress
+        </dd>
+
+        <dt>
+            Order Date
+        </dt>
+
+        <dd>
+            @Model.OrderDate.ToShortDateString()
+        </dd>
+
+        <dt>
+            Total
+        </dt>
+
+        <dd>
+            @Model.TotalAmount.ToString("C")
+        </dd>
+
+        <dt>
+            Status
+        </dt>
+
+        <dd>
+            @Model.Status
+        </dd>
+    </dl>
+</div>
+
+<h4>Order Items</h4>
+
+<table class="table">
+    <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Subtotal</th>
+    </tr>
+
+    @foreach (var item in Model.OrderItems)
+    {
+        <tr>
+            <td>@item.Product.Name</td>
+            <td>@item.Quantity</td>
+            <td>@item.Price.ToString("C")</td>
+            <td>@((item.Quantity * item.Price).ToString("C"))</td>
+        </tr>
+    }
+</table>
+
+@using (Html.BeginForm("UpdateOrderStatus", "Bookstore", new { orderId = Model.Id }, FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label for="status">Update Status:</label>
+        @Html.DropDownList("status", new SelectList(new[] { "Pending", "Processing", "Shipped", "Delivered", "Cancelled" }), Model.Status, new { @class = "form-control" })
+    </div>
+    <button type="submit" class="btn btn-primary">Update Status</button>
+}
+
+<p>
+    @Html.ActionLink("Back to Order List", "Orders")
+</p>
