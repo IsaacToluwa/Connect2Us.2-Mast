@@ -42,7 +42,7 @@ jobs:
         run: nuget restore Connect2Us.2.sln
         
       - name: Build Application
-        run: msbuild Connect2Us.2.csproj /p:Configuration=Release /p:Platform="Any CPU" /p:OutputPath="bin\" /verbosity:minimal
+        run: msbuild Connect2Us.2.sln /p:Configuration=Release /p:Platform="Any CPU" /verbosity:minimal
         
       - name: Publish Application
         run: msbuild Connect2Us.2.csproj /p:Configuration=Release /p:Platform="Any CPU" /p:DeployOnBuild=true /p:PublishProfile=FileSystem /p:VisualStudioVersion=16.0
