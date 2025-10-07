@@ -9,6 +9,8 @@ using System.Web.Routing;
 using Connect2Us.Models;
 using Connect2Us.Migrations;
 using System.Data.Entity.Migrations;
+using Stripe;
+using System.Configuration;
 
 namespace Connect2Us._2
 {
@@ -29,6 +31,10 @@ namespace Connect2Us._2
             
             try
             {
+                // Stripe configuration disabled
+                System.IO.File.AppendAllText(logPath, "Stripe configuration disabled\n");
+                // StripeConfiguration.ApiKey = ConfigurationManager.AppSettings["StripeSecretKey"]; // Disabled
+                
                 // Configure database to use migrations and preserve seeded data
                 System.IO.File.AppendAllText(logPath, "Configuring database initialization...\n");
                 Database.SetInitializer(new Connect2Us.Infrastructure.PreserveSeedDataInitializer());

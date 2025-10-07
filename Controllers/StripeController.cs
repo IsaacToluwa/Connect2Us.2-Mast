@@ -4,6 +4,7 @@ using Stripe;
 using Stripe.Checkout;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -21,6 +22,14 @@ namespace Connect2Us.Controllers
 
         public ActionResult CreateCheckoutSession()
         {
+            // Check if Stripe is enabled
+            bool stripeEnabled = bool.Parse(ConfigurationManager.AppSettings["StripeEnabled"] ?? "false");
+            if (!stripeEnabled)
+            {
+                TempData["error"] = "Stripe payments are currently disabled. Please use wallet-based checkout.";
+                return RedirectToAction("Checkout", "Customer");
+            }
+
             try
             {
                 var userId = User.Identity.GetUserId();

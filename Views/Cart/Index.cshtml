@@ -101,7 +101,8 @@
                         <br />
                         <div class="row">
                             <div class="col-xs-12">
-                                @Html.ActionLink("Proceed to Checkout", "CreateCheckoutSession", "Stripe", null, new { @class = "btn btn-success btn-block btn-lg" })
+                                @* Stripe payment disabled - using wallet-based checkout instead *@
+                                @Html.ActionLink("Proceed to Checkout", "Checkout", "Customer", null, new { @class = "btn btn-success btn-block btn-lg" })
                             </div>
                         </div>
                         <div class="row">
