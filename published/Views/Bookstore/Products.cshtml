@@ -1,0 +1,127 @@
+@model IEnumerable<Connect2Us.Models.Product>
+@{
+    ViewBag.Title = "Manage Products";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Manage Products</h2>
+            <p class="text-muted">View and manage your bookstore inventory</p>
+        </div>
+        <div class="col-md-4 text-right">
+            <a href="@Url.Action("CreateProduct", "Bookstore")" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add New Product
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped" id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                    {
+                                        <img src="@product.ImageUrl" alt="@product.Name" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <strong>@product.Name</strong>
+                                    @if (product.IsForRent && product.RentalPrice.HasValue)
+                                    {
+                                        <br><small class="text-muted">For Rent - @product.RentalPrice.Value.ToString("C")/day</small>
+                                    }
+                                </td>
+                                <td>@product.Category?.Name</td>
+                                <td>@product.Price.ToString("C")</td>
+                                <td>
+                                    <span class="badge badge-@(product.StockQuantity < 10 ? "danger" : "success")">
+                                        @product.StockQuantity
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-@(product.IsAvailable ? "success" : "secondary")">
+                                        @(product.IsAvailable ? "Available" : "Unavailable")
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="@Url.Action("EditProduct", "Bookstore", new { id = product.Id })" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteProduct(@product.Id, '@product.Name')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function deleteProduct(id, name) {
+            if (confirm('Are you sure you want to delete "' + name + '"?')) {
+                $.ajax({
+                    url: '@Url.Action("DeleteProduct", "Bookstore")',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function(result) {
+                        if (result.success) {
+                            location.reload();
+                        } else {
+                            alert('Error: ' + result.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Error deleting product.');
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function() {
+            $('#productsTable').DataTable({
+                responsive: true,
+                order: [[1, 'asc']]
+            });
+        });
+    </script>
+}

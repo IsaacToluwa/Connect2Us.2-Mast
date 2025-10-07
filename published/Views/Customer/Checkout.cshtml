@@ -1,0 +1,88 @@
+@model Connect2Us.Models.CheckoutViewModel
+
+@{ 
+    ViewBag.Title = "Checkout";
+}
+
+<h2>@ViewBag.Title</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@using (Html.BeginForm("PlaceOrder", "Customer", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <h4>Order Summary</h4>
+    if (Model.CartItems != null && Model.CartItems.Any())
+    {
+        <table class="table">
+            @foreach (var item in Model.CartItems)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>@item.Quantity x @item.Price.ToString("C")</td>
+                    <td>@item.TotalPrice.ToString("C")</td>
+                </tr>
+            }
+            <tr>
+                <td colspan="2" style="text-align:right"><b>Total</b></td>
+                <td><b>@Model.TotalAmount.ToString("C")</b></td>
+            </tr>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">Your cart is empty.</div>
+    }
+
+    <h4>Shipping Information</h4>
+    <div class="form-group">
+        @Html.LabelFor(model => model.DeliveryAddress, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.DeliveryAddress, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.DeliveryAddress, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Notes, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.TextAreaFor(model => model.Notes, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <h4>Payment</h4>
+    <p>Wallet Balance: @(Model.WalletBalance.ToString("C"))</p>
+    if (Model.TotalAmount > Model.WalletBalance)
+    {
+        <div class="alert alert-danger">Insufficient wallet balance.</div>
+    }
+    else
+    {
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Place Order" class="btn btn-success" />
+            </div>
+        </div>
+    }
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+}

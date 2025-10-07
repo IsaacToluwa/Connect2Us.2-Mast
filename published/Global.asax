@@ -1,0 +1,1 @@
+<%@ Application Codebehind="Global.asax.cs" Inherits="Connect2Us._2.MvcApplication" Language="C#" %>

@@ -1,0 +1,27 @@
+@{
+    ViewBag.Title = "Generate Reports";
+}
+
+<h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm("GenerateReport", "Admin", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label for="reportType">Select Report Type:</label>
+        @Html.DropDownList("reportType", new SelectList(new[] { "Sales", "Users", "Inventory" }), new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label for="startDate">Start Date:</label>
+        <input type="date" name="startDate" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="endDate">End Date:</label>
+        <input type="date" name="endDate" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Generate Report</button>
+}

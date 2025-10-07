@@ -1,0 +1,74 @@
+@model IEnumerable<Connect2Us.Models.Reservation>
+
+@{ 
+    ViewBag.Title = "My Reservations";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-calendar-check"></i> @ViewBag.Title</h2>
+        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-primary">
+            <i class="fas fa-plus"></i> Reserve New Product
+        </a>
+    </div>
+
+    @if (TempData["success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">You have no reservations</h4>
+            <p class="text-muted">Browse our products to make your first reservation!</p>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-primary mt-3">
+                <i class="fas fa-shopping-bag"></i> Browse Products
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-dark">@item.Status</span>
+                                <small>@item.ReservationDate.ToShortDateString()</small>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Product.Name</h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-tag"></i> $@item.Product.Price.ToString("F2")
+                                </small>
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar"></i> Reserved for: @item.ReservationDate.ToString("MMMM dd, yyyy")
+                                </small>
+                            </p>
+                        </div>
+                        <div class="card-footer bg-light">
+                            @using (Html.BeginForm("Cancel", "Reservations", new { id = item.Id }, FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100" onclick="return confirm('Are you sure you want to cancel this reservation?');">
+                                    <i class="fas fa-times"></i> Cancel Reservation
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

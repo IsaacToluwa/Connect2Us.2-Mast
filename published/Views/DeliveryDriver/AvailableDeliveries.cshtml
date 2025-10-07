@@ -1,0 +1,50 @@
+@model IEnumerable<Connect2Us.Models.Delivery>
+
+@{ 
+    ViewBag.Title = "Available Deliveries";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            Order ID
+        </th>
+        <th>
+            Customer
+        </th>
+        <th>
+            Bookstore
+        </th>
+        <th>
+            Status
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order.OrderNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order.Customer.User.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order.Bookstore.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @using (Html.BeginForm("AcceptDelivery", "DeliveryDriver", new { deliveryId = item.Id }, FormMethod.Post))
+                {
+                    <button type="submit" class="btn btn-primary">Accept</button>
+                }
+            </td>
+        </tr>
+    }
+
+</table>
