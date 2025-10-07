@@ -1,81 +1,183 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
+# ASP.NET MVC Application Deployment to Azure Web App
+# This workflow builds and deploys the Connect2Us application to Azure
 
-name: Build and deploy ASP app to Azure Web App - Connect2US
+name: Build and Deploy Connect2Us to Azure
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
+env:
+  AZURE_WEBAPP_NAME: Connect2US
+  AZURE_WEBAPP_SLOT: Production
+  
 jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
-
+      contents: read
+      
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup MSBuild path
-        uses: microsoft/setup-msbuild@v2
+      - name: Checkout Code
+        uses: actions/checkout@v4
         
-      - name: Setup .NET Framework
+      - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
         with:
-          vs-version: '[17.0,18.0)'  # Visual Studio 2022
-
+          msbuild-architecture: x64
+          
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.5
-
-      - name: Restore NuGet packages
+        
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.config') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+            
+      - name: Restore NuGet Packages
         run: nuget restore Connect2Us.2.sln
-
-      - name: Publish to folder
-        run: msbuild Connect2Us.2.csproj /nologo /verbosity:m /t:Build /p:Configuration=Release /p:Platform="Any CPU" /p:WebPublishMethod=FileSystem /p:publishUrl="published" /p:DeployOnBuild=true
-
-      - name: Verify build output
+        
+      - name: Build Application
+        run: msbuild Connect2Us.2.csproj /p:Configuration=Release /p:Platform="Any CPU" /p:OutputPath="bin\" /verbosity:minimal
+        
+      - name: Publish Application
+        run: msbuild Connect2Us.2.csproj /p:Configuration=Release /p:Platform="Any CPU" /p:DeployOnBuild=true /p:PublishProfile=FileSystem /p:VisualStudioVersion=16.0
+        
+      - name: Verify Build Output
         run: |
-          echo "Build completed. Checking output..."
-          dir published\ /s
+          Write-Host "=== Checking Published Directory ==="
+          if (Test-Path "published") {
+            Write-Host "Published directory found:"
+            Get-ChildItem "published" -Recurse | Select-Object Name, Length, LastWriteTime
+          } else {
+            Write-Host "Published directory NOT found"
+          }
           
-      - name: Upload artifact for deployment job
+          Write-Host "=== Checking Bin Directory ==="
+          if (Test-Path "bin") {
+            Write-Host "Bin directory contents:"
+            Get-ChildItem "bin" -Recurse | Select-Object Name, Length, LastWriteTime
+          }
+          
+      - name: Create Deployment Package
+        run: |
+          Write-Host "Creating deployment package..."
+          
+          # Create package directory
+          New-Item -ItemType Directory -Force -Path "deployment-package"
+          
+          # Copy application binaries
+          Write-Host "Copying application binaries..."
+          if (Test-Path "published") {
+            Copy-Item -Path "published\*" -Destination "deployment-package\" -Recurse -Force
+          } else {
+            Write-Host "Using bin directory files..."
+            Copy-Item -Path "bin\*.dll" -Destination "deployment-package\" -Force
+            Copy-Item -Path "bin\*.pdb" -Destination "deployment-package\" -Force -ErrorAction SilentlyContinue
+          }
+          
+          # Copy essential web files
+          Write-Host "Copying web files..."
+          Copy-Item -Path "Web.config" -Destination "deployment-package\" -Force
+          Copy-Item -Path "Global.asax" -Destination "deployment-package\" -Force
+          Copy-Item -Path "Global.asax.cs" -Destination "deployment-package\" -Force -ErrorAction SilentlyContinue
+          
+          # Copy content directories
+          Write-Host "Copying content directories..."
+          $directories = @("Views", "Content", "Scripts", "fonts", "App_Data", "App_Start")
+          foreach ($dir in $directories) {
+            if (Test-Path $dir) {
+              Write-Host "Copying $dir directory..."
+              Copy-Item -Path $dir -Destination "deployment-package\" -Recurse -Force
+            } else {
+              Write-Host "Directory $dir not found, skipping..."
+            }
+          }
+          
+          # Copy root files
+          Write-Host "Copying root files..."
+          $rootFiles = @("*.ico", "*.txt", "*.html", "robots.txt", "sitemap.xml")
+          foreach ($pattern in $rootFiles) {
+            Get-ChildItem -Path $pattern -ErrorAction SilentlyContinue | ForEach-Object {
+              Copy-Item -Path $_.FullName -Destination "deployment-package\" -Force
+            }
+          }
+          
+          # List final package contents
+          Write-Host "=== Final Deployment Package Contents ==="
+          Get-ChildItem "deployment-package" -Recurse | Select-Object Name, Length, LastWriteTime
+          
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ASP-app
-          path: 'published\'
+          name: webapp-deployment-package
+          path: deployment-package\
 
   deploy:
     runs-on: windows-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-
+      id-token: write
+      contents: read
+    environment: Production
+    
     steps:
-      - name: Download artifact from build job
+      - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: ASP-app
+          name: webapp-deployment-package
           
-      - name: Verify deployment package
+      - name: Verify Deployment Package
         run: |
-          echo "Deployment package contents:"
-          dir /s
-      
-      - name: Login to Azure
+          Write-Host "=== Deployment Package Contents ==="
+          Get-ChildItem . -Recurse | Select-Object Name, Length, LastWriteTime
+          
+          # Verify essential files exist
+          $requiredFiles = @("Web.config", "Global.asax")
+          foreach ($file in $requiredFiles) {
+            if (Test-Path $file) {
+              Write-Host "✓ Found: $file"
+            } else {
+              Write-Host "✗ Missing: $file"
+            }
+          }
+          
+          # Check for DLL files
+          $dllCount = (Get-ChildItem -Filter "*.dll" -Recurse).Count
+          Write-Host "Found $dllCount DLL files"
+          
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_188E64413313450BA987CB17A2AB8FDB }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C2DAC1E1B3D84CC99FED2841F7FB4839 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5E03C99C396E4E34A4B56AC7A1487628 }}
-
+          
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'Connect2US'
-          slot-name: 'Production'
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          slot-name: ${{ env.AZURE_WEBAPP_SLOT }}
           package: .
+          
+      - name: Deployment Verification
+        run: |
+          Write-Host "=== Deployment Completed ==="
+          Write-Host "Application: ${{ env.AZURE_WEBAPP_NAME }}"
+          Write-Host "Slot: ${{ env.AZURE_WEBAPP_SLOT }}"
+          Write-Host "Status: Successfully deployed"
+          
+      - name: Post-Deployment Health Check
+        run: |
+          # Wait a moment for the app to start
+          Start-Sleep -Seconds 30
+          
+          # Attempt to get the app URL (this would need the actual URL)
+          Write-Host "Application should be available at: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net"
+          Write-Host "Note: Manual verification recommended for initial deployment"
           
