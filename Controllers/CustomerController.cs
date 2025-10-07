@@ -82,19 +82,32 @@ namespace Connect2Us.Controllers
             var userId = User.Identity.GetUserId();
             var customer = db.Customers.FirstOrDefault(c => c.UserId == userId);
             var wallet = db.Wallets.FirstOrDefault(w => w.UserId == userId);
-            var cart = Session["Cart"] as System.Collections.Generic.List<CustomerCartItem> ?? new System.Collections.Generic.List<CustomerCartItem>();
             
-            if (!cart.Any())
+            // Use database cart instead of session cart
+            var dbCart = db.Carts.Include(c => c.CartItems.Select(ci => ci.Product)).FirstOrDefault(c => c.UserId == userId);
+            
+            if (dbCart == null || !dbCart.CartItems.Any())
             {
                 TempData["ErrorMessage"] = "Your cart is empty.";
                 return RedirectToAction("Browse");
             }
 
+            // Convert database cart items to CustomerCartItem format
+            var cartItems = dbCart.CartItems.Select(item => new CustomerCartItem
+            {
+                ProductId = item.ProductId,
+                ProductName = item.Product.Name,
+                Price = item.Product.Price,
+                Quantity = item.Quantity,
+                IsRental = false, // Default to false, can be enhanced later
+                BookstoreId = item.Product.BookstoreId
+            }).ToList();
+
             var viewModel = new CheckoutViewModel
             {
-                CartItems = cart,
+                CartItems = cartItems,
                 WalletBalance = wallet?.Balance ?? 0,
-                TotalAmount = cart.Sum(item => item.Price * item.Quantity)
+                TotalAmount = cartItems.Sum(item => item.Price * item.Quantity)
             };
 
             return View(viewModel);
@@ -108,13 +121,26 @@ namespace Connect2Us.Controllers
             var userId = User.Identity.GetUserId();
             var customer = db.Customers.FirstOrDefault(c => c.UserId == userId);
             var wallet = db.Wallets.FirstOrDefault(w => w.UserId == userId);
-            var cart = Session["Cart"] as System.Collections.Generic.List<CustomerCartItem> ?? new System.Collections.Generic.List<CustomerCartItem>();
             
-            if (!cart.Any())
+            // Use database cart instead of session cart
+            var dbCart = db.Carts.Include(c => c.CartItems.Select(ci => ci.Product)).FirstOrDefault(c => c.UserId == userId);
+            
+            if (dbCart == null || !dbCart.CartItems.Any())
             {
                 TempData["ErrorMessage"] = "Your cart is empty.";
                 return RedirectToAction("Browse");
             }
+
+            // Convert database cart items to CustomerCartItem format
+            var cartItems = dbCart.CartItems.Select(item => new CustomerCartItem
+            {
+                ProductId = item.ProductId,
+                ProductName = item.Product.Name,
+                Price = item.Product.Price,
+                Quantity = item.Quantity,
+                IsRental = false, // Default to false, can be enhanced later
+                BookstoreId = item.Product.BookstoreId
+            }).ToList();
 
             if (model.TotalAmount > (wallet?.Balance ?? 0))
             {
@@ -125,7 +151,7 @@ namespace Connect2Us.Controllers
             try
             {
                 // Group cart items by bookstore
-                var ordersByBookstore = cart.GroupBy(item => item.BookstoreId);
+                var ordersByBookstore = cartItems.GroupBy(item => item.BookstoreId);
                 
                 foreach (var bookstoreGroup in ordersByBookstore)
                 {
@@ -222,22 +248,48 @@ namespace Connect2Us.Controllers
 
                 await db.SaveChangesAsync();
 
-                // Clear cart
-                Session["Cart"] = null;
+                // Clear database cart - reload cart to ensure proper tracking
+                var cartToClear = db.Carts.Include(c => c.CartItems).FirstOrDefault(c => c.UserId == userId);
+                if (cartToClear != null && cartToClear.CartItems.Any())
+                {
+                    db.CartItems.RemoveRange(cartToClear.CartItems);
+                    await db.SaveChangesAsync();
+                }
 
                 TempData["SuccessMessage"] = "Order placed successfully!";
-                return RedirectToAction("MyOrders");
+                return RedirectToAction("Index", "Home");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", "An error occurred while placing your order. Please try again.");
+                // Log the actual error for debugging
+                System.Diagnostics.Debug.WriteLine($"Order placement error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                
+                // Provide more specific error messages based on common issues
+                if (ex.Message.Contains("wallet") || ex.Message.Contains("balance"))
+                {
+                    ModelState.AddModelError("", "Insufficient wallet balance. Please add funds to your wallet before placing the order.");
+                }
+                else if (ex.Message.Contains("stock") || ex.Message.Contains("quantity"))
+                {
+                    ModelState.AddModelError("", "Some items in your cart are no longer available or have insufficient stock.");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "An error occurred while placing your order. Please try again. If the problem persists, contact support.");
+                }
+                
                 return View("Checkout", model);
             }
         }
 
         // GET: Customer/MyOrders
-        public ActionResult MyOrders()
+        public ActionResult MyOrders(bool? success)
         {
+            if (success == true && TempData["SuccessMessage"] == null)
+            {
+                TempData["SuccessMessage"] = "Order placed successfully!";
+            }
             var userId = User.Identity.GetUserId();
             var customer = db.Customers.FirstOrDefault(c => c.UserId == userId);
             

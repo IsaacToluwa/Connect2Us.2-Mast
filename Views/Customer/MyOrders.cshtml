@@ -6,6 +6,31 @@
 
 <h2>@ViewBag.Title</h2>
 
+@{
+    var success = Request.QueryString["success"] == "true";
+    var successMessage = TempData["SuccessMessage"] ?? (success ? "Order placed successfully!" : null);
+}
+
+@if (successMessage != null && !string.IsNullOrEmpty(successMessage.ToString()))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @successMessage
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
 @if (Model.Any())
 {
     <table class="table">
