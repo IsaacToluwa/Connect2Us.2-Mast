@@ -153,9 +153,9 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_188E64413313450BA987CB17A2AB8FDB }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C2DAC1E1B3D84CC99FED2841F7FB4839 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5E03C99C396E4E34A4B56AC7A1487628 }}
           enable-AzPSSession: false
           environment: azurecloud
           allow-no-subscriptions: false
