@@ -1,0 +1,220 @@
+@model Connect2Us.Models.AdminDashboardViewModel
+@{
+    ViewBag.Title = "Admin Dashboard";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Admin Dashboard</h2>
+            <p class="text-muted">System administration and monitoring</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <h3>@Model.TotalUsers</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Bookstores</h5>
+                    <h3>@Model.TotalBookstores</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Customers</h5>
+                    <h3>@Model.TotalCustomers</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Drivers</h5>
+                    <h3>@Model.TotalDeliveryDrivers</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Orders</h5>
+                    <h3>@Model.TotalOrders</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Revenue</h5>
+                    <h3>@Model.TotalRevenue.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Orders</h5>
+                    <h3>@Model.PendingOrders</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Active Users</h5>
+                    <h3>@Model.RecentUsers.Count</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <a href="@Url.Action("Users", "Admin")" class="btn btn-primary">
+                            <i class="fas fa-users"></i> Manage Users
+                        </a>
+                        <a href="@Url.Action("Bookstores", "Admin")" class="btn btn-success">
+                            <i class="fas fa-store"></i> Manage Bookstores
+                        </a>
+                        <a href="@Url.Action("Orders", "Admin")" class="btn btn-info">
+                            <i class="fas fa-orders"></i> View Orders
+                        </a>
+                        <a href="@Url.Action("Categories", "Admin")" class="btn btn-warning">
+                            <i class="fas fa-tags"></i> Manage Categories
+                        </a>
+                        <a href="@Url.Action("Reports", "Admin")" class="btn btn-dark">
+                            <i class="fas fa-chart-bar"></i> View Reports
+                        </a>
+                        <a href="@Url.Action("SystemSettings", "Admin")" class="btn btn-secondary">
+                            <i class="fas fa-cog"></i> System Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Users and Orders -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Users</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentUsers.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Type</th>
+                                        <th>Joined</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model.RecentUsers)
+                                    {
+                                        <tr>
+                                            <td>@user.FirstName @user.LastName</td>
+                                            <td>@user.Email</td>
+                                            <td>
+                                                <span class="badge badge-primary">@user.UserType</span>
+                                            </td>
+                                            <td>@user.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No recent users found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Orders</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentOrders.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Customer</th>
+                                        <th>Bookstore</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.RecentOrders)
+                                    {
+                                        <tr>
+                                            <td>@order.OrderNumber</td>
+                                            <td>@order.Customer.User.FirstName @order.Customer.User.LastName</td>
+                                            <td>@order.Bookstore.Name</td>
+                                            <td>@order.TotalAmount.ToString("C")</td>
+                                            <td>
+                                                <span class="badge badge-@(order.Status.ToLower() == "pending" ? "warning" : 
+                                                                                    order.Status.ToLower() == "processing" ? "info" :
+                                                                                    order.Status.ToLower() == "shipped" ? "primary" :
+                                                                                    order.Status.ToLower() == "delivered" ? "success" : "secondary")">
+                                                    @order.Status
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No recent orders found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add any dashboard-specific JavaScript here
+            console.log('Admin dashboard loaded');
+        });
+    </script>
+}

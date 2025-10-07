@@ -1,0 +1,11 @@
+@{
+    ViewBag.Title = "Report Result";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<p><strong>Report Type:</strong> @ViewBag.ReportType</p>
+<p><strong>Start Date:</strong> @(ViewBag.StartDate != null ? ViewBag.StartDate.ToString("d") : "N/A")</p>
+<p><strong>End Date:</strong> @(ViewBag.EndDate != null ? ViewBag.EndDate.ToString("d") : "N/A")</p>
+
+@Html.ActionLink("Back to Reports", "Index")

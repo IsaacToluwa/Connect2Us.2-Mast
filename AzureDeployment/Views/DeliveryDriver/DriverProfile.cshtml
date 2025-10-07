@@ -1,0 +1,165 @@
+@model Connect2Us.Models.DeliveryDriver
+
+@{
+    ViewBag.Title = "Driver Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Driver Profile</h2>
+            <hr />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Personal Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Name:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @Model.User.FirstName @Model.User.LastName
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Email:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @Model.User.Email
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Phone Number:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @Model.User.PhoneNumber
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Status:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @if (Model.IsAvailable)
+                            {
+                                <span class="badge bg-success">Available</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Not Available</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4>Vehicle Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Vehicle Type:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @Model.VehicleType
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Vehicle Number:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @Model.VehicleNumber
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>License Number:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @Model.LicenseNumber
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Registration:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @Model.VehicleRegistration
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Quick Actions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        @Html.ActionLink("Edit Profile", "UpdateProfile", "DeliveryDriver", null, new { @class = "btn btn-primary" })
+                        @Html.ActionLink("View Earnings", "Earnings", "DeliveryDriver", null, new { @class = "btn btn-success" })
+                        @Html.ActionLink("My Wallet", "Wallet", "DeliveryDriver", null, new { @class = "btn btn-info" })
+                        @Html.ActionLink("Available Deliveries", "AvailableDeliveries", "DeliveryDriver", null, new { @class = "btn btn-warning" })
+                        @Html.ActionLink("My Deliveries", "MyDeliveries", "DeliveryDriver", null, new { @class = "btn btn-secondary" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4>Statistics</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-8">
+                            <strong>Total Deliveries:</strong>
+                        </div>
+                        <div class="col-4 text-end">
+                            @Model.Deliveries.Count()
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-8">
+                            <strong>Completed:</strong>
+                        </div>
+                        <div class="col-4 text-end">
+                            @Model.Deliveries.Count(d => d.Status == "Delivered")
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-8">
+                            <strong>In Progress:</strong>
+                        </div>
+                        <div class="col-4 text-end">
+                            @Model.Deliveries.Count(d => d.Status == "In Transit" || d.Status == "Picked Up")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            @Html.ActionLink("Back to Dashboard", "Index", "DeliveryDriver", null, new { @class = "btn btn-outline-secondary" })
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
