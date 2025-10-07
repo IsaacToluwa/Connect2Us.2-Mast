@@ -28,12 +28,12 @@ $secrets = @{
     "STRIPE_PUBLISHABLE_KEY" = @{
         Description = "Stripe publishable key for payments"
         HowToGet = "Stripe Dashboard > Developers > API Keys"
-        Example = "pk_test_1234567890abcdefghijklmnopqrstuv"
+        Example = "pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE"
     }
     "STRIPE_SECRET_KEY" = @{
         Description = "Stripe secret key for payments"
         HowToGet = "Stripe Dashboard > Developers > API Keys"
-        Example = "sk_test_1234567890abcdefghijklmnopqrstuvwx"
+        Example = "sk_test_YOUR_STRIPE_SECRET_KEY_HERE"
     }
 }
 
